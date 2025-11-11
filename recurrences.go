@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Recurrences represents the recurrence rules for an event.
 type Recurrences struct {
 	Frequency  Frequency
 	Day        time.Weekday
@@ -62,6 +63,11 @@ func (r *Recurrences) Valid() bool {
 	}
 
 	return true
+}
+
+func (r *Recurrences) uid() string {
+	return fmt.Sprintf("%s-%s-%s", r.Frequency,
+		r.StartTime.UTC().Format("15_04"), r.EndTime.UTC().Format("15_04"))
 }
 func (r *Recurrences) ConflictsWith(other Recurrences) (bool, time.Weekday) {
 	if r.Day != other.Day {

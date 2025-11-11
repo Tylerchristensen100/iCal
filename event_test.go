@@ -43,7 +43,14 @@ func TestHasRecurrences(t *testing.T) {
 	if nonRecurringEvent.HasRecurrences() {
 		t.Errorf("Expected event to not have recurrences, but HasRecurrences() returned true")
 	}
+}
 
+func TestEventUID(t *testing.T) {
+	event := mockEvent()
+	expectedUID := "Test_Event-Monday-Monday"
+	if event.uid() != expectedUID {
+		t.Errorf("Expected UID %s, got %s", expectedUID, event.uid())
+	}
 }
 
 func TestConflictsWithEvent(t *testing.T) {

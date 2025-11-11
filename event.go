@@ -16,48 +16,53 @@ type Event struct {
 	Recurrences []Recurrences
 }
 
+// Generate creates the iCal formatted string for the event.
 func (e *Event) Generate() (string, error) {
 	var builder strings.Builder
 
 	if len(e.Recurrences) > 0 {
 		// Recurring
 		for _, rec := range e.Recurrences {
-			recCal, err := rec.Generate(e.StartDate, e.EndDate, e.TimeZone)
+			recRule, err := rec.Generate(e.StartDate, e.EndDate, e.TimeZone)
 			if err != nil {
 				return "", err
 			}
-			var description string
-			if len(e.Description) > 63 {
-				// Truncate description to 75 characters (including 'DESCRIPTION:' prefix)
-				// https://icalendar.org/iCalendar-RFC-5545/3-1-content-lines.html
-				description = e.Description[:60] + "..."
-			} else {
-				description = e.Description
-			}
+
 			builder.WriteString("BEGIN:VEVENT" + lineBreak)
-			builder.WriteString("UID:" + fmt.Sprintf("%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
-				rec.Day.String()) + lineBreak)
-			builder.WriteString(fmt.Sprintf("DTSTAMP:%s", fmt.Sprintf("%sZ", timeToICal(time.Now().UTC()))) + lineBreak)
-			builder.WriteString(recCal + lineBreak)
-			builder.WriteString("SUMMARY:" + e.Title + lineBreak)
-			builder.WriteString("DESCRIPTION:" + description + lineBreak)
-			builder.WriteString("LOCATION:" + e.Location + lineBreak)
+			builder.WriteString("UID:" + rec.uid() + lineBreak)
+			builder.WriteString(recRule + lineBreak)
+			e.buildEventDetails(&builder)
 			builder.WriteString("END:VEVENT" + lineBreak)
 		}
 	} else {
 		// Non-recurring
 		builder.WriteString("BEGIN:VEVENT" + lineBreak)
-		builder.WriteString("UID:" + fmt.Sprintf("%s-%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
-			e.StartDate.Weekday(), e.EndDate.Weekday()) + lineBreak)
+		builder.WriteString("UID:" + e.uid() + lineBreak)
+
 		builder.WriteString(fmt.Sprintf("DTSTART;TZID=%s:%s", e.TimeZone.iCal(), timeToICal(e.StartDate)) + lineBreak)
 		builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", e.TimeZone.iCal(), timeToICal(e.EndDate)) + lineBreak)
-		builder.WriteString(fmt.Sprintf("DTSTAMP:%s", fmt.Sprintf("%sZ", timeToICal(time.Now().UTC()))) + lineBreak)
-		builder.WriteString("SUMMARY:" + e.Title + lineBreak)
-		builder.WriteString("LOCATION:" + e.Location + lineBreak)
+		e.buildEventDetails(&builder)
 		builder.WriteString("END:VEVENT" + lineBreak)
 	}
 
 	return builder.String(), nil
+}
+
+func (e *Event) uid() string {
+	return fmt.Sprintf("%s-%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
+		e.StartDate.Weekday(), e.EndDate.Weekday())
+}
+
+func (e *Event) buildEventDetails(builder *strings.Builder) {
+	builder.WriteString(fmt.Sprintf("DTSTAMP:%s", fmt.Sprintf("%sZ", timeToICal(time.Now().UTC()))) + lineBreak)
+	builder.WriteString("SUMMARY:" + e.Title + lineBreak)
+	builder.WriteString("LOCATION:" + e.Location + lineBreak)
+
+	if e.Description != "" {
+		description := cleanDescription(e.Description)
+		builder.WriteString("DESCRIPTION:" + description + lineBreak)
+	}
+
 }
 
 func (e *Event) HasRecurrences() bool {
@@ -127,6 +132,18 @@ func (e *Event) Valid() bool {
 		return false
 	}
 	return true
+}
+
+func cleanDescription(desc string) string {
+	// Truncate description to 75 characters (including 'DESCRIPTION:' prefix)
+	// https://icalendar.org/iCalendar-RFC-5545/3-1-content-lines.html
+	var description string
+	if len(desc) > 63 {
+		description = desc[:60] + "..."
+	} else {
+		description = desc
+	}
+	return strings.ReplaceAll(description, "\n", " ")
 }
 
 func timeToICal(t time.Time) string {

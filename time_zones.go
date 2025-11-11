@@ -1,5 +1,7 @@
 package ical
 
+// TimeZone represents the time zone for an event.
+// It includes common time zones used in the United States and UTC.
 type TimeZone string
 
 const (
@@ -13,10 +15,9 @@ const (
 	UTC              TimeZone = "UTC"
 )
 
+// Return the TimeZone Definition as specified by the ICal standard.
+// https://icalendar.org/iCalendar-RFC-5545/3-2-19-time-zone-identifier.html
 func (tz *TimeZone) iCal() string {
-	// Return the TimeZone Definition as specified by the ICal standard.
-	// https://icalendar.org/iCalendar-RFC-5545/3-2-19-time-zone-identifier.html
-
 	if !tz.Valid() {
 		return string(UTC)
 	}

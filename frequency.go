@@ -1,5 +1,7 @@
 package ical
 
+// Frequency represents the frequency of recurrence for an event.
+// It can be daily, weekly, monthly, or yearly.
 type Frequency string
 
 const (

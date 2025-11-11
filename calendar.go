@@ -24,6 +24,7 @@ func (c *Calendar) AddEvent(e Event) error {
 	return nil
 }
 
+// Generate creates the iCal formatted string for the entire calendar.
 func (c *Calendar) Generate() (string, error) {
 	var builder strings.Builder
 	builder.WriteString("BEGIN:VCALENDAR" + lineBreak)
@@ -43,6 +44,7 @@ func (c *Calendar) Generate() (string, error) {
 	return builder.String(), nil
 }
 
+// ListConflicts returns a list of events that have scheduling conflicts with other events in the calendar.
 func (c *Calendar) ListConflicts() []*Event {
 	var conflicts []*Event
 	c.ResolveConflicts(func(event1, event2 *Event, _ time.Weekday) {
@@ -51,6 +53,10 @@ func (c *Calendar) ListConflicts() []*Event {
 	return conflicts
 }
 
+// ResolveConflicts checks for scheduling conflicts between events in the calendar
+// and applies the provided resolveFunc to each pair of conflicting events.
+//
+// This is for interactive conflict resolution where the user can define how to handle conflicts.
 func (c *Calendar) ResolveConflicts(resolveFunc func(event1, event2 *Event, conflictingDay time.Weekday)) {
 	for i, event := range c.Events {
 		for j, otherEvent := range c.Events {

@@ -189,6 +189,14 @@ func TestWeekdayToICal(t *testing.T) {
 	}
 }
 
+func TestRecurrenceUID(t *testing.T) {
+	rec := mockRecurrence()
+	expectedUID := "WEEKLY-09_00-10_00"
+	if rec.uid() != expectedUID {
+		t.Errorf("Expected UID %s, got %s", expectedUID, rec.uid())
+	}
+}
+
 func mockRecurrence() Recurrences {
 	return Recurrences{
 		Frequency: WeeklyFrequency,
