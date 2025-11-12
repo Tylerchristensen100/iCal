@@ -8,6 +8,7 @@ const (
 	errInvalidDayOfWeekMessage  = "invalid day of week"
 	errNoConflictFoundMessage   = "no conflict found for the specified date"
 	errNoRecurrenceFoundMessage = "no recurrence found for the specified day"
+	errInvalidEmailMessage      = "invalid email format"
 )
 
 var (
@@ -25,6 +26,9 @@ var (
 
 	// ErrNoRecurrenceFound is returned when no recurrence is found for the specified day.
 	ErrNoRecurrenceFound = fmt.Errorf(errNoRecurrenceFoundMessage)
+
+	// ErrInvalidEmail is returned when an email format is invalid.
+	ErrInvalidEmail = fmt.Errorf(errInvalidEmailMessage)
 )
 
 // ErrEndTimeBeforeStartTime is returned when the end time is before the start time.

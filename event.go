@@ -13,7 +13,14 @@ type Event struct {
 	StartDate   time.Time
 	EndDate     time.Time
 	TimeZone    TimeZone
+
+	// Recurrence rules for the event
+	// If empty, the event is non-recurring
 	Recurrences []Recurrences
+
+	// Everyone invited to the event
+	// Should be in email format
+	Attendees []string
 }
 
 // Generate creates the iCal formatted string for the event.
@@ -31,7 +38,11 @@ func (e *Event) Generate() (string, error) {
 			builder.WriteString("BEGIN:VEVENT" + lineBreak)
 			builder.WriteString("UID:" + rec.uid() + lineBreak)
 			builder.WriteString(recRule + lineBreak)
-			e.buildEventDetails(&builder)
+			err = e.buildEventDetails(&builder)
+			if err != nil {
+				return "", err
+			}
+
 			builder.WriteString("END:VEVENT" + lineBreak)
 		}
 	} else {
@@ -41,7 +52,11 @@ func (e *Event) Generate() (string, error) {
 
 		builder.WriteString(fmt.Sprintf("DTSTART;TZID=%s:%s", e.TimeZone.iCal(), timeToICal(e.StartDate)) + lineBreak)
 		builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", e.TimeZone.iCal(), timeToICal(e.EndDate)) + lineBreak)
-		e.buildEventDetails(&builder)
+		err := e.buildEventDetails(&builder)
+		if err != nil {
+			return "", err
+		}
+
 		builder.WriteString("END:VEVENT" + lineBreak)
 	}
 
@@ -68,12 +83,21 @@ func (e *Event) CancelOnDate(cancelDate time.Time) error {
 	return ErrNoRecurrenceFound
 }
 
+func (e *Event) AddAttendee(email string) error {
+	if !validateEmail(email) {
+		return ErrInvalidEmail
+	}
+
+	e.Attendees = append(e.Attendees, email)
+	return nil
+}
+
 func (e *Event) uid() string {
 	return fmt.Sprintf("%s-%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
 		e.StartDate.Weekday(), e.EndDate.Weekday())
 }
 
-func (e *Event) buildEventDetails(builder *strings.Builder) {
+func (e *Event) buildEventDetails(builder *strings.Builder) error {
 	builder.WriteString(fmt.Sprintf("DTSTAMP:%s", fmt.Sprintf("%sZ", timeToICal(time.Now().UTC()))) + lineBreak)
 	builder.WriteString("SUMMARY:" + e.Title + lineBreak)
 	builder.WriteString("LOCATION:" + e.Location + lineBreak)
@@ -82,6 +106,13 @@ func (e *Event) buildEventDetails(builder *strings.Builder) {
 		description := cleanDescription(e.Description)
 		builder.WriteString("DESCRIPTION:" + description + lineBreak)
 	}
+	for _, attendee := range e.Attendees {
+		if !validateEmail(attendee) {
+			return ErrInvalidEmail
+		}
+		builder.WriteString(fmt.Sprintf("ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;CN=%s;X-NUM-GUESTS=0:mailto:%s", attendee, attendee) + lineBreak)
+	}
+	return nil
 
 }
 
@@ -185,4 +216,11 @@ func timeToICal(t time.Time) string {
 
 func stripDay(t time.Time) time.Time {
 	return time.Date(0, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+}
+
+func validateEmail(email string) bool {
+	if !strings.Contains(email, "@") || strings.HasPrefix(email, "@") || strings.HasSuffix(email, "@") {
+		return false
+	}
+	return true
 }

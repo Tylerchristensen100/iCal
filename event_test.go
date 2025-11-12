@@ -1,6 +1,7 @@
 package ical
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -18,6 +19,14 @@ func TestGenerateEvent(t *testing.T) {
 	}
 	if len(icalEvent) == 0 {
 		t.Errorf("Generate() returned empty iCal event string")
+	}
+
+	if !strings.Contains(icalEvent, "BEGIN:VEVENT") || !strings.Contains(icalEvent, "END:VEVENT") {
+		t.Errorf("Generated iCal event string is missing VEVENT boundaries")
+	}
+
+	if !strings.Contains(icalEvent, "ATTENDEE;") {
+		t.Errorf("Generated iCal event string is missing ATTENDEE field")
 	}
 }
 
@@ -96,6 +105,40 @@ func TestCancelOnDate(t *testing.T) {
 	t.Errorf("Expected exception date %v to be in event exceptions, but it was not found", exceptionDate)
 }
 
+func TestAddAttendee(t *testing.T) {
+	event := mockEvent()
+	var tests = []struct {
+		email       string
+		expectError bool
+	}{
+		{"test@example.com", false},
+		{"invalid-email", true},
+		{"", true},
+	}
+
+	for _, tt := range tests {
+		err := event.AddAttendee(tt.email)
+		if tt.expectError && err == nil {
+			t.Errorf("Expected error for email %s, but got none", tt.email)
+		}
+		if !tt.expectError && err != nil {
+			t.Errorf("Did not expect error for email %s, but got: %v", tt.email, err)
+		}
+		if !tt.expectError {
+			found := false
+			for _, attendee := range event.Attendees {
+				if attendee == tt.email {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("Expected attendee %s to be in event attendees, but it was not found", tt.email)
+			}
+		}
+	}
+
+}
 func mockEvent() Event {
 	startDate := time.Date(2025, time.November, 17, 9, 0, 0, 0, time.UTC)
 	return Event{
@@ -111,5 +154,6 @@ func mockEvent() Event {
 				EndTime:   time.Date(0, 0, 0, 10, 0, 0, 0, time.UTC),
 			},
 		},
+		Attendees: []string{"test@example.com"},
 	}
 }
