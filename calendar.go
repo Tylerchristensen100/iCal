@@ -1,6 +1,7 @@
 package ical
 
 import (
+	"os"
 	"strings"
 	"time"
 )
@@ -24,8 +25,26 @@ func (c *Calendar) AddEvent(e Event) error {
 	return nil
 }
 
+// Saves the calendar to a file at the specified path.
+func (c *Calendar) Save(path string) error {
+	icalData, err := c.Generate()
+	if err != nil {
+		return err
+	}
+
+	if strings.Contains(path, ".ics") {
+		path += ".ics"
+	}
+
+	err = os.WriteFile(path, []byte(icalData), 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Generate creates the iCal formatted string for the entire calendar.
-func (c *Calendar) Generate() (string, error) {
+func (c *Calendar) Generate() ([]byte, error) {
 	var builder strings.Builder
 	builder.WriteString("BEGIN:VCALENDAR" + lineBreak)
 	builder.WriteString("VERSION:2.0" + lineBreak)
@@ -36,18 +55,18 @@ func (c *Calendar) Generate() (string, error) {
 	for _, event := range c.Events {
 		event, err := event.Generate()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		builder.WriteString(event)
 	}
 	builder.WriteString("END:VCALENDAR" + lineBreak)
-	return builder.String(), nil
+	return []byte(builder.String()), nil
 }
 
 // ListConflicts returns a list of events that have scheduling conflicts with other events in the calendar.
 func (c *Calendar) ListConflicts() []*Event {
 	var conflicts []*Event
-	c.ResolveConflicts(func(event1, event2 *Event, _ time.Weekday) {
+	c.ResolveConflicts(func(event1, event2 *Event, _ time.Time) {
 		conflicts = append(conflicts, event1, event2)
 	})
 	return conflicts
@@ -57,7 +76,7 @@ func (c *Calendar) ListConflicts() []*Event {
 // and applies the provided resolveFunc to each pair of conflicting events.
 //
 // This is for interactive conflict resolution where the user can define how to handle conflicts.
-func (c *Calendar) ResolveConflicts(resolveFunc func(event1, event2 *Event, conflictingDay time.Weekday)) {
+func (c *Calendar) ResolveConflicts(resolveFunc ResolveFunc) {
 	for i, event := range c.Events {
 		for j, otherEvent := range c.Events {
 			// Skip self-comparison
@@ -70,3 +89,18 @@ func (c *Calendar) ResolveConflicts(resolveFunc func(event1, event2 *Event, conf
 		}
 	}
 }
+
+// Function to resolve conflicts between two events.
+//
+// event1 and event2 are the conflicting events,
+// conflictingDay is the day on which the conflict occurs.
+//
+// Used for more interactive conflict resolution.
+/*
+ func exampleResolveFunc(event1, event2 *Event, conflictingDay time.Time) {
+	if event1.HasRecurrences() && !event2.HasRecurrences() {
+		event1.AddException(conflictingDay)
+	}
+ }
+*/
+type ResolveFunc func(event1, event2 *Event, conflictingDay time.Time)

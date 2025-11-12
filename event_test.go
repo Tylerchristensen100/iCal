@@ -67,14 +67,33 @@ func TestConflictsWithEvent(t *testing.T) {
 	}
 
 	event1, event2 := conflicts[0], conflicts[1]
-	conflict, day := event1.ConflictsWith(event2)
+	conflict, tme := event1.ConflictsWith(event2)
 	if !conflict {
 		t.Errorf("Expected events to conflict, but ConflictsWith() returned false")
 	}
-	if day != time.Monday {
-		t.Errorf("Expected conflict day to be Monday, got %s", day)
+	if tme.Weekday() != time.Monday {
+		t.Errorf("Expected conflict day to be Monday, got %s", tme.Weekday())
 	}
 
+}
+
+func TestCancelOnDate(t *testing.T) {
+	event := mockEvent()
+	exceptionDate := time.Date(2025, time.November, 24, 0, 0, 0, 0, time.UTC)
+	err := event.CancelOnDate(exceptionDate)
+	if err != nil {
+		t.Fatalf("CancelOnDate() returned error: %v", err)
+	}
+
+	for i := range event.Recurrences {
+		for _, ex := range event.Recurrences[i].Exceptions {
+			if ex.Equal(exceptionDate) {
+				t.Logf("Exception date %v successfully added to event exceptions", exceptionDate)
+				return
+			}
+		}
+	}
+	t.Errorf("Expected exception date %v to be in event exceptions, but it was not found", exceptionDate)
 }
 
 func mockEvent() Event {

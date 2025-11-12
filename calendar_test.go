@@ -50,7 +50,7 @@ func TestListConflicts(t *testing.T) {
 func TestResolveConflicts(t *testing.T) {
 	cal := mockCalendar()
 
-	cal.ResolveConflicts(func(event1, event2 *Event, day time.Weekday) {
+	cal.ResolveConflicts(func(event1, event2 *Event, day time.Time) {
 		t.Errorf("Unexpected conflict between '%s' and '%s' on %s", event1.Title, event2.Title, day)
 	})
 

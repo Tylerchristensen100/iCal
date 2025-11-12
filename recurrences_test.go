@@ -52,12 +52,12 @@ func TestConflictsWithRecurrences(t *testing.T) {
 		StartTime: time.Date(0, 0, 0, 9, 30, 0, 0, time.UTC),
 		EndTime:   time.Date(0, 0, 0, 10, 30, 0, 0, time.UTC),
 	}
-	conflict, day := r.ConflictsWith(other)
+	conflict, tme := r.ConflictsWith(other)
 	if !conflict {
 		t.Errorf("Expected conflict between recurrences but got none")
 	}
-	if day != time.Monday {
-		t.Errorf("Expected conflict on Monday but got %s", day)
+	if tme.Hour() != 9 || tme.Minute() != 00 {
+		t.Errorf("Expected conflict at 9:00 but got %d:%d", tme.Hour(), tme.Minute())
 	}
 
 	nonConflicting := Recurrences{

@@ -48,6 +48,26 @@ func (e *Event) Generate() (string, error) {
 	return builder.String(), nil
 }
 
+// Adds a cancellation for the event on the specified date.
+//
+// If the event does not recur on that day, returns an error.
+//
+// Strips out the time component of the cancelDate to only consider the date.
+func (e *Event) CancelOnDate(cancelDate time.Time) error {
+	dayOfWeek := cancelDate.Weekday()
+
+	date := time.Date(cancelDate.Year(), cancelDate.Month(), cancelDate.Day(),
+		0, 0, 0, 0, cancelDate.Location())
+
+	for i := range e.Recurrences {
+		if e.Recurrences[i].Day == dayOfWeek {
+			e.Recurrences[i].Exceptions = append(e.Recurrences[i].Exceptions, date)
+			return nil
+		}
+	}
+	return ErrNoRecurrenceFound
+}
+
 func (e *Event) uid() string {
 	return fmt.Sprintf("%s-%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
 		e.StartDate.Weekday(), e.EndDate.Weekday())
@@ -68,13 +88,23 @@ func (e *Event) buildEventDetails(builder *strings.Builder) {
 func (e *Event) HasRecurrences() bool {
 	return len(e.Recurrences) > 0
 }
-func (e *Event) ConflictsWith(other *Event) (bool, time.Weekday) {
+func (e *Event) ConflictsWith(other *Event) (bool, time.Time) {
 	//Both are recurring events
 	if e.HasRecurrences() && other.HasRecurrences() {
 		for _, rec := range e.Recurrences {
 			for _, otherRec := range other.Recurrences {
-				if conflicts, day := rec.ConflictsWith(otherRec); conflicts {
-					return true, day
+				if conflicts, tme := rec.ConflictsWith(otherRec); conflicts {
+					// Find the date of the conflict
+					occurrences := rec.Occurrences(e.StartDate, e.EndDate)
+					otherOccurrences := otherRec.Occurrences(other.StartDate, other.EndDate)
+					for _, occ := range occurrences {
+						for _, otherOcc := range otherOccurrences {
+							if occ.Year() == otherOcc.Year() && occ.Month() == otherOcc.Month() && occ.Day() == otherOcc.Day() {
+								// The Day and Time of the conflict
+								return true, time.Date(occ.Year(), occ.Month(), occ.Day(), tme.Hour(), tme.Minute(), tme.Second(), 0, occ.Location())
+							}
+						}
+					}
 				}
 			}
 		}
@@ -83,7 +113,8 @@ func (e *Event) ConflictsWith(other *Event) (bool, time.Weekday) {
 	// Single event vs single event
 	if !e.HasRecurrences() && !other.HasRecurrences() {
 		if e.StartDate.Before(other.EndDate) && e.EndDate.After(other.StartDate) {
-			return true, e.StartDate.Weekday()
+			return true, time.Date(e.StartDate.Year(), e.StartDate.Month(), e.StartDate.Day(),
+				e.StartDate.Hour(), e.StartDate.Minute(), e.StartDate.Second(), 0, e.StartDate.Location())
 		}
 	}
 
@@ -115,13 +146,15 @@ func (e *Event) ConflictsWith(other *Event) (bool, time.Weekday) {
 					rec.EndTime.Hour(), rec.EndTime.Minute(), rec.EndTime.Second(), 0, singleStart.Location())
 
 				if singleStart.Before(recEnd) && singleEnd.After(recStart) {
-					return true, singleDay
+					//Find the date of the conflict
+					return true, time.Date(singleStart.Year(), singleStart.Month(), singleStart.Day(),
+						rec.StartTime.Hour(), rec.StartTime.Minute(), rec.StartTime.Second(), 0, singleStart.Location())
 				}
 			}
 		}
 	}
 
-	return false, 0
+	return false, time.Time{}
 }
 
 func (e *Event) Valid() bool {

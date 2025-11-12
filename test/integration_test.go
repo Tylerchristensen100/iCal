@@ -40,10 +40,11 @@ func TestIntegration(t *testing.T) {
 		},
 	})
 
-	calendar, err := cal.Generate()
+	c, err := cal.Generate()
 	if err != nil {
 		t.Fatalf("Failed to generate calendar: %v", err)
 	}
+	calendar := string(c)
 
 	expectedSubstring := "BEGIN:VCALENDAR"
 	if !strings.Contains(calendar, expectedSubstring) {

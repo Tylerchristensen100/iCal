@@ -69,14 +69,51 @@ func (r *Recurrences) uid() string {
 	return fmt.Sprintf("%s-%s-%s", r.Frequency,
 		r.StartTime.UTC().Format("15_04"), r.EndTime.UTC().Format("15_04"))
 }
-func (r *Recurrences) ConflictsWith(other Recurrences) (bool, time.Weekday) {
+func (r *Recurrences) ConflictsWith(other Recurrences) (bool, time.Time) {
 	if r.Day != other.Day {
-		return false, 0
+		return false, time.Time{}
 	}
 	if stripDay(r.StartTime).Before(stripDay(other.EndTime)) && stripDay(other.StartTime).Before(stripDay(r.EndTime)) {
-		return true, r.Day
+		return true, time.Date(0, 1, 1, r.StartTime.Hour(), r.StartTime.Minute(), r.StartTime.Second(), 0, time.UTC)
 	}
-	return false, 0
+
+	return false, time.Time{}
+}
+
+func (r *Recurrences) Occurrences(startDate time.Time, endDate time.Time) []time.Time {
+	var occurrences []time.Time
+	startTime := stripDay(r.StartTime)
+	startDate, err := findStartDate(startDate, r.Day, r.StartTime)
+	if err != nil {
+		return occurrences
+	}
+
+	current := startDate
+	for current.Before(endDate) || current.Equal(endDate) {
+		occurrence := time.Date(
+			current.Year(),
+			current.Month(),
+			current.Day(),
+			startTime.Hour(),
+			startTime.Minute(),
+			startTime.Second(),
+			0,
+			current.Location(),
+		)
+		occurrences = append(occurrences, occurrence)
+
+		switch r.Frequency {
+		case DailyFrequency:
+			current = current.AddDate(0, 0, 1)
+		case WeeklyFrequency:
+			current = current.AddDate(0, 0, 7)
+		case MonthlyFrequency:
+			current = current.AddDate(0, 1, 0)
+		case YearlyFrequency:
+			current = current.AddDate(1, 0, 0)
+		}
+	}
+	return occurrences
 }
 
 func validWeekday(d time.Weekday) bool {
