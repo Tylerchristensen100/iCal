@@ -2,6 +2,9 @@
 
 iCal is a Go library for generating iCalendar (.ics) files with support for recurring events. It provides an easy-to-use API for creating events, defining recurrence rules, and exporting calendars in the standard iCalendar format.
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/Tylerchristensen100/iCal.svg)](https://pkg.go.dev/github.com/Tylerchristensen100/iCal)
+[![codecov](https://codecov.io/github/Tylerchristensen100/iCal/graph/badge.svg?token=CXIYJTVZV1)](https://codecov.io/github/Tylerchristensen100/iCal)
+
 ## Features
 
 - Create events with start and end times, summaries, descriptions, and locations.
