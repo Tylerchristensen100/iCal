@@ -1,5 +1,6 @@
 package timezones
 
+// iCalendar VTIMEZONE component
 type TZID string
 
 const (

@@ -4,6 +4,8 @@ import timezones "github.com/Tylerchristensen100/iCal/timezones"
 
 // TimeZone represents the time zone for an event.
 // It includes common time zones used in the United States and UTC.
+//
+// iCalendar VTIMEZONE component
 type TimeZone timezones.TZID
 
 // Return the TimeZone Definition as specified by the ICal standard.

@@ -9,6 +9,7 @@ const (
 	errNoConflictFoundMessage   = "no conflict found for the specified date"
 	errNoRecurrenceFoundMessage = "no recurrence found for the specified day"
 	errInvalidEmailMessage      = "invalid email format"
+	errInvalidReminderMessage   = "invalid reminder"
 )
 
 var (
@@ -29,6 +30,9 @@ var (
 
 	// ErrInvalidEmail is returned when an email format is invalid.
 	ErrInvalidEmail = fmt.Errorf(errInvalidEmailMessage)
+
+	// ErrInvalidReminder is returned when a reminder is not valid.
+	ErrInvalidReminder = fmt.Errorf(errInvalidReminderMessage)
 )
 
 // ErrEndTimeBeforeStartTime is returned when the end time is before the start time.

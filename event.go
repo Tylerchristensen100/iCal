@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// iCalendar VEVENT component
 type Event struct {
 	Title       string
 	Description string
@@ -22,6 +23,7 @@ type Event struct {
 	// Everyone invited to the event
 	// Should be in email format
 	Attendees []Participant
+	Reminders []Reminder
 }
 
 // Generate creates the iCal formatted string for the event.
@@ -129,6 +131,16 @@ func (e *Event) buildEventDetails(builder *strings.Builder) error {
 			return err
 		}
 	}
+
+	if len(e.Reminders) > 0 {
+		for _, reminder := range e.Reminders {
+			err := reminder.generate(builder)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
