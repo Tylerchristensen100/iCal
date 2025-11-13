@@ -33,9 +33,9 @@ func (r *Recurrences) Generate(startDate, endDate time.Time, timeZone TimeZone) 
 	}
 
 	var builder strings.Builder
-	builder.WriteString(fmt.Sprintf("DTSTART;TZID=%s:%s", timeZone.iCal(), timeToICal(startTime)))
+	builder.WriteString(fmt.Sprintf("DTSTART;TZID=%s:%s", timeZone.ID(), timeToICal(startTime)))
 	builder.WriteString(lineBreak)
-	builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", timeZone.iCal(), timeToICal(startTime.Add(r.EndTime.Sub(r.StartTime)))))
+	builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", timeZone.ID(), timeToICal(startTime.Add(r.EndTime.Sub(r.StartTime)))))
 	builder.WriteString(lineBreak)
 	builder.WriteString("RRULE:")
 	builder.WriteString(fmt.Sprintf("FREQ=%s;", r.Frequency))
@@ -44,7 +44,7 @@ func (r *Recurrences) Generate(startDate, endDate time.Time, timeZone TimeZone) 
 	if len(r.Exceptions) > 0 {
 		for _, ex := range r.Exceptions {
 			builder.WriteString(lineBreak)
-			builder.WriteString(fmt.Sprintf("EXDATE;TZID=%s:%s", timeZone.iCal(), timeToICal(ex)))
+			builder.WriteString(fmt.Sprintf("EXDATE;TZID=%s:%s", timeZone.ID(), timeToICal(ex)))
 		}
 	}
 

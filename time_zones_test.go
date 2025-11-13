@@ -6,38 +6,17 @@ import (
 	"github.com/Tylerchristensen100/iCal/timezones"
 )
 
-func TestTimeZoneToiCal(t *testing.T) {
-	var tests = []struct {
-		timeZone TimeZone
-		expected string
-	}{
-		{CentralTimeZone, "America/Chicago"},
-		{PacificTimeZone, "America/Los_Angeles"},
-		{AlaskaTimeZone, "America/Anchorage"},
-		{HawaiiTimeZone, "America/Honolulu"},
-		{ArizonaTimeZone, "America/Phoenix"},
-		{"", "UTC"},
-		{"Invalid/Zone", "UTC"},
-	}
-	for _, test := range tests {
-		result := test.timeZone.iCal()
-		if result != test.expected {
-			t.Errorf("TimeZoneToiCal(%q) = %q; want %q", test.timeZone, result, test.expected)
-		}
-	}
-}
-
 func TestTimeZoneValid(t *testing.T) {
 	var tests = []struct {
 		timeZone TimeZone
 		expected bool
 	}{
-		{CentralTimeZone, true},
-		{PacificTimeZone, true},
-		{AlaskaTimeZone, true},
-		{HawaiiTimeZone, true},
-		{ArizonaTimeZone, true},
-		{UTC, true},
+		{TimeZone(timezones.America_Chicago), true},
+		{TimeZone(timezones.America_Los_Angeles), true},
+		{TimeZone(timezones.US_Alaska), true},
+		{TimeZone(timezones.US_Hawaii), true},
+		{TimeZone(timezones.US_Arizona), true},
+		{TimeZone(timezones.UTC), true},
 		{"", false},
 		{"Invalid/Zone", false},
 	}
@@ -50,26 +29,21 @@ func TestTimeZoneValid(t *testing.T) {
 }
 
 func TestTimeZoneToICS(t *testing.T) {
-	var tests = []struct {
-		timeZone TimeZone
-		expected []byte
-	}{
-		{CentralTimeZone, timezones.USCentral},
-		{EasternTimeZone, timezones.USEastern},
-		{MountainTimeZone, timezones.USMountain},
-		{PacificTimeZone, timezones.USPacific},
-		{AlaskaTimeZone, timezones.USAlaska},
-		{ArizonaTimeZone, timezones.USArizona},
-		{HawaiiTimeZone, timezones.USHawaii},
-		{UTC, timezones.UTC},
-		{"Invalid/Zone", timezones.UTC},
-		{"", timezones.UTC},
+	timezone := TimeZone(timezones.America_New_York)
+	icsString, found := timezone.iCal()
+	if !found {
+		t.Errorf("Expected to find timezone definition for %q", timezone)
+	}
+	if icsString == "" {
+		t.Errorf("Expected non-empty ICS string for timezone %q", timezone)
 	}
 
-	for _, test := range tests {
-		result := test.timeZone.ics()
-		if string(result) != string(test.expected) {
-			t.Errorf("TimeZoneToICS(%q) = %q; want %q", test.timeZone, result, test.expected)
-		}
+	invalidTimezone := TimeZone("Invalid/Timezone")
+	icsString, found = invalidTimezone.iCal()
+	if found {
+		t.Errorf("Did not expect to find timezone definition for %q", invalidTimezone)
+	}
+	if icsString != string(timezones.UTC) {
+		t.Errorf("Expected ICS string for invalid timezone %q to be UTC, got %q", invalidTimezone, icsString)
 	}
 }

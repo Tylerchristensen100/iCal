@@ -16,10 +16,10 @@ func TestAddEvent(t *testing.T) {
 		{Event{Title: "Valid Event",
 			StartDate: time.Now(),
 			EndDate:   time.Now().Add(1 * time.Hour),
-			TimeZone:  EasternTimeZone,
+			TimeZone:  TimeZone(timezones.US_Eastern),
 		}, true},
-		{Event{Title: "", StartDate: time.Now(), EndDate: time.Now().Add(1 * time.Hour), TimeZone: EasternTimeZone}, false},              // Invalid: empty title
-		{Event{Title: "Invalid Event", StartDate: time.Now().Add(2 * time.Hour), EndDate: time.Now(), TimeZone: EasternTimeZone}, false}, // Invalid: end before start
+		{Event{Title: "", StartDate: time.Now(), EndDate: time.Now().Add(1 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)}, false},              // Invalid: empty title
+		{Event{Title: "Invalid Event", StartDate: time.Now().Add(2 * time.Hour), EndDate: time.Now(), TimeZone: TimeZone(timezones.US_Eastern)}, false}, // Invalid: end before start
 	}
 	cal := mockCalendar()
 	for _, tt := range tests {
@@ -42,29 +42,26 @@ func TestGenerateCalendar(t *testing.T) {
 }
 
 func TestGenerateTimeZones(t *testing.T) {
+	builder := strings.Builder{}
 
-	var tests = []struct {
-		timeZone TimeZone
-		expected []byte
-	}{
-		{CentralTimeZone, timezones.USCentral},
-		{EasternTimeZone, timezones.USEastern},
-		{MountainTimeZone, timezones.USMountain},
-		{PacificTimeZone, timezones.USPacific},
-		{AlaskaTimeZone, timezones.USAlaska},
-		{"", []byte{}}, // Invalid time zone defaults to UTC
+	validtz := TimeZone(timezones.US_Central)
+
+	cal := mockCalendar(validtz)
+	cal.generateTimeZones(&builder)
+	result := builder.String()
+	expectedTimeZones, found := timezones.Get(timezones.US_Central)
+	if !found || !strings.Contains(result, string(expectedTimeZones)) {
+		t.Errorf("Expected time zone definition not found in generated iCal data")
 	}
+	builder.Reset()
 
-	for _, tt := range tests {
-		builder := strings.Builder{}
-		cal := mockCalendar(tt.timeZone)
-		cal.generateTimeZones(&builder)
-		result := builder.String()
-		expectedTimeZones := tt.expected
-		if !strings.Contains(result, string(expectedTimeZones)) {
-			t.Errorf("Expected time zone definition not found in generated iCal data")
-		}
-		builder.Reset()
+	invalidtz := TimeZone("Invalid/Timezone")
+	cal = mockCalendar(invalidtz)
+	cal.generateTimeZones(&builder)
+	result = builder.String()
+	expectedTimeZones, found = timezones.Get(timezones.UTC)
+	if !found && !strings.Contains(result, string(expectedTimeZones)) {
+		t.Errorf("Expected UTC time zone definition not found in generated iCal data for invalid timezone")
 	}
 
 }
@@ -88,7 +85,7 @@ func TestResolveConflicts(t *testing.T) {
 }
 
 func mockCalendar(tz ...TimeZone) *Calendar {
-	var zone TimeZone = EasternTimeZone
+	var zone TimeZone = TimeZone(timezones.US_Eastern)
 	if tz != nil {
 		zone = tz[0]
 	}

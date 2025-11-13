@@ -12,7 +12,11 @@
         "PARTSTAT",
         "PRODID",
         "RRULE",
+        "validtz",
         "VCALENDAR",
         "VEVENT"
+    ],
+    "cSpell.ignorePaths": [
+        "**/timezones/tzid.go"
     ]
 }

@@ -51,8 +51,8 @@ func (e *Event) Generate() (string, error) {
 		builder.WriteString("BEGIN:VEVENT" + lineBreak)
 		builder.WriteString("UID:" + e.uid() + lineBreak)
 
-		builder.WriteString(fmt.Sprintf("DTSTART;TZID=%s:%s", e.TimeZone.iCal(), timeToICal(e.StartDate)) + lineBreak)
-		builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", e.TimeZone.iCal(), timeToICal(e.EndDate)) + lineBreak)
+		builder.WriteString(fmt.Sprintf("DTSTART;TZID=%s:%s", e.TimeZone.ID(), timeToICal(e.StartDate)) + lineBreak)
+		builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", e.TimeZone.ID(), timeToICal(e.EndDate)) + lineBreak)
 		err := e.buildEventDetails(&builder)
 		if err != nil {
 			return "", err

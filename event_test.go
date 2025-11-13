@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/Tylerchristensen100/iCal/timezones"
 )
 
 func TestGenerateEvent(t *testing.T) {
@@ -46,7 +48,7 @@ func TestHasRecurrences(t *testing.T) {
 		Title:     "Non-Recurring Event",
 		StartDate: time.Now(),
 		EndDate:   time.Now().Add(1 * time.Hour),
-		TimeZone:  EasternTimeZone,
+		TimeZone:  TimeZone(timezones.US_Eastern),
 	}
 
 	if nonRecurringEvent.HasRecurrences() {
@@ -145,7 +147,7 @@ func mockEvent() Event {
 		Title:     "Test Event",
 		StartDate: startDate,
 		EndDate:   startDate.Add(5 * time.Hour),
-		TimeZone:  EasternTimeZone,
+		TimeZone:  TimeZone(timezones.US_Eastern),
 		Recurrences: []Recurrences{
 			{
 				Frequency: WeeklyFrequency,

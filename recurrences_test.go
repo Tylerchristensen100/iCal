@@ -3,6 +3,8 @@ package ical
 import (
 	"testing"
 	"time"
+
+	"github.com/Tylerchristensen100/iCal/timezones"
 )
 
 func TestGenerateRecurrences(t *testing.T) {
@@ -14,7 +16,7 @@ func TestGenerateRecurrences(t *testing.T) {
 		{Recurrences{Frequency: WeeklyFrequency}, false},
 	}
 	for _, tt := range tests {
-		s, err := tt.recurrences.Generate(time.Now(), time.Now().Add(7*24*time.Hour), EasternTimeZone)
+		s, err := tt.recurrences.Generate(time.Now(), time.Now().Add(7*24*time.Hour), TimeZone(timezones.US_Eastern))
 		if err != nil && tt.success {
 			t.Errorf("Recurrences.Generate() returned error: %v", err)
 		}
@@ -34,7 +36,7 @@ func TestGenerateRecurrencesWithException(t *testing.T) {
 		{Recurrences{Frequency: DailyFrequency, Exceptions: []time.Time{time.Now().Add(24 * 4 * time.Hour)}}, false},
 	}
 	for _, tt := range tests {
-		s, err := tt.recurrences.Generate(time.Now(), time.Now().Add(7*24*time.Hour), EasternTimeZone)
+		s, err := tt.recurrences.Generate(time.Now(), time.Now().Add(7*24*time.Hour), TimeZone(timezones.US_Eastern))
 		if err != nil && tt.success {
 			t.Errorf("Recurrences.Generate() returned error: %v", err)
 		}
