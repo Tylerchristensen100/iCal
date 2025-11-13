@@ -34,3 +34,30 @@ func TestGetFailure(t *testing.T) {
 		t.Errorf("Get(%q) returned data %q; want empty string", tzid, data)
 	}
 }
+
+func TestValid(t *testing.T) {
+	tests := []struct {
+		tzid    TZID
+		isValid bool
+	}{
+		{America_Chicago, true},
+		{America_Denver, true},
+		{TZID("Invalid/Timezone"), false},
+	}
+
+	for _, tt := range tests {
+		if tt.tzid.Valid() != tt.isValid {
+			t.Errorf("Valid(%q) = %v; want %v", tt.tzid, tt.tzid.Valid(), tt.isValid)
+		}
+	}
+}
+
+func TestLoad(t *testing.T) {
+	err := load()
+	if err != nil {
+		t.Errorf("load() returned error: %v", err)
+	}
+	if len(timezones) == 0 {
+		t.Errorf("load() did not populate timezones map")
+	}
+}

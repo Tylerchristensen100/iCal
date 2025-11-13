@@ -139,8 +139,35 @@ func TestAddAttendee(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestAddOrganizer(t *testing.T) {
+	event := mockEvent()
+	err := event.AddOrganizer("Test Organizer", "test@example.com")
+	if err != nil {
+		t.Errorf("AddOrganizer() returned error: %v", err)
+	}
+	if event.Organizer.Name != "Test Organizer" || event.Organizer.Email != "test@example.com" {
+		t.Errorf("Organizer not set correctly. Got: %+v", event.Organizer)
+	}
+}
+
+func TestCleanDescription(t *testing.T) {
+	rawDescription := "This is a test description with special characters: \n , ; \\ and more."
+	cleanedDescription := cleanDescription(rawDescription)
+	expectedDescription := "This is a test description with special characters:   , ,  a..."
+	if cleanedDescription != expectedDescription {
+		t.Errorf("Expected cleaned description to be:\n%s\nGot:\n%s", expectedDescription, cleanedDescription)
+	}
+
+	clean := "Short description."
+	cleaned := cleanDescription(clean)
+	if cleaned != clean {
+		t.Errorf("Expected cleaned description to be unchanged:\n%s\nGot:\n%s", clean, cleaned)
+	}
 
 }
+
 func mockEvent() Event {
 	startDate := time.Date(2025, time.November, 17, 9, 0, 0, 0, time.UTC)
 	return Event{

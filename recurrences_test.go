@@ -1,6 +1,7 @@
 package ical
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -26,23 +27,53 @@ func TestGenerateRecurrences(t *testing.T) {
 	}
 }
 
-func TestGenerateRecurrencesWithException(t *testing.T) {
-	var tests = []struct {
-		recurrences Recurrences
-		success     bool
-	}{
-		{mockRecurrence(), true},
-		{Recurrences{Frequency: WeeklyFrequency, Exceptions: []time.Time{time.Now().Add(24 * time.Hour)}}, false},
-		{Recurrences{Frequency: DailyFrequency, Exceptions: []time.Time{time.Now().Add(24 * 4 * time.Hour)}}, false},
+func TestGenerateChecks(t *testing.T) {
+	startDate := time.Now().Add(7 * 24 * time.Hour)
+	endDate := time.Now().Add(-7 * time.Hour)
+	rec := mockRecurrence()
+	_, err := rec.Generate(startDate, endDate, TimeZone(timezones.US_Eastern))
+	if err == nil {
+		t.Errorf("Recurrences.Generate() expected to fail with end date before start date, but succeeded")
 	}
+	if err != nil && !strings.Contains(err.Error(), "is before start time") {
+		t.Errorf("Recurrences.Generate() returned unexpected error: %v", err)
+	}
+
+}
+
+func TestGenerateRecurrencesWithException(t *testing.T) {
+	tests := []struct {
+		name        string
+		recurrences Recurrences
+		expectErr   bool
+	}{
+		{"valid recurrence", mockRecurrence(), false},
+		{"invalid zone", Recurrences{Frequency: WeeklyFrequency, Exceptions: []time.Time{time.Now().Add(24 * time.Hour)}}, true},
+		{"multiple exceptions", Recurrences{
+			Frequency: DailyFrequency,
+			Exceptions: []time.Time{
+				time.Now().Add(24 * 4 * time.Hour),
+				time.Now().Add(10 * time.Hour),
+			},
+		}, true},
+	}
+
 	for _, tt := range tests {
-		s, err := tt.recurrences.Generate(time.Now(), time.Now().Add(7*24*time.Hour), TimeZone(timezones.US_Eastern))
-		if err != nil && tt.success {
-			t.Errorf("Recurrences.Generate() returned error: %v", err)
-		}
-		if err == nil && !tt.success {
-			t.Errorf("Recurrences.Generate() expected to fail but succeeded, output: %s", s)
-		}
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
+			s, err := test.recurrences.Generate(time.Now(), time.Now().Add(7*24*time.Hour), TimeZone(timezones.US_Eastern))
+
+			if test.expectErr && err == nil {
+				t.Errorf("expected error but got success, output: %s", s)
+			}
+			if !test.expectErr && err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			if !test.expectErr && len(test.recurrences.Exceptions) > 0 && !strings.Contains(s, "EXDATE") {
+				t.Errorf("expected EXDATE in output but not found: %s", s)
+			}
+		})
 	}
 }
 

@@ -218,10 +218,10 @@ func cleanDescription(desc string) string {
 	// Truncate description to 75 characters (including 'DESCRIPTION:' prefix)
 	// https://icalendar.org/iCalendar-RFC-5545/3-1-content-lines.html
 	var description string
-	if len(desc) > 63 {
-		description = desc[:60] + "..."
-	} else {
-		description = desc
+	description = strings.ReplaceAll(desc, ";", ",")
+	description = strings.ReplaceAll(description, "\\", "")
+	if len(description) > 63 {
+		description = description[:60] + "..."
 	}
 	return strings.ReplaceAll(description, "\n", " ")
 }

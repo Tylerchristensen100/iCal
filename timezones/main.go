@@ -19,16 +19,24 @@ var compressedData []byte
 var timezones map[string]string
 
 func init() {
+	err := load()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load timezones: %v", err))
+	}
+}
+
+func load() error {
 	reader, err := gzip.NewReader(bytes.NewReader(compressedData))
 	if err != nil {
-		panic(fmt.Errorf("failed to create gzip reader: %w", err))
+		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}
 	defer reader.Close()
 
 	decoder := json.NewDecoder(reader)
 	if err := decoder.Decode(&timezones); err != nil {
-		panic(fmt.Errorf("failed to decode JSON data: %w", err))
+		return fmt.Errorf("failed to decode JSON data: %w", err)
 	}
+	return nil
 }
 
 func Get(tzid TZID) (string, bool) {

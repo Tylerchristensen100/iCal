@@ -32,7 +32,7 @@ func (c *Calendar) Save(path string) error {
 		return err
 	}
 
-	if strings.Contains(path, ".ics") {
+	if !strings.Contains(path, ".ics") {
 		path += ".ics"
 	}
 

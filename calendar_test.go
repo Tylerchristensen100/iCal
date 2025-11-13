@@ -1,6 +1,7 @@
 package ical
 
 import (
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -64,6 +65,22 @@ func TestGenerateTimeZones(t *testing.T) {
 		t.Errorf("Expected UTC time zone definition not found in generated iCal data for invalid timezone")
 	}
 
+}
+
+func TestSave(t *testing.T) {
+	const fileName = "test_calendar.ics"
+	cal := mockCalendar()
+	err := cal.Save(fileName)
+	if err != nil {
+		t.Errorf("Save() returned error: %v", err)
+	}
+
+	t.Cleanup(func() {
+		err := os.Remove(fileName)
+		if err != nil {
+			t.Errorf("Cleanup: Delete() returned error: %v", err)
+		}
+	})
 }
 
 func TestListConflicts(t *testing.T) {
