@@ -1,8 +1,11 @@
 package ical
 
 import (
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/Tylerchristensen100/iCal/timezones"
 )
 
 func TestAddEvent(t *testing.T) {
@@ -38,6 +41,34 @@ func TestGenerateCalendar(t *testing.T) {
 	}
 }
 
+func TestGenerateTimeZones(t *testing.T) {
+
+	var tests = []struct {
+		timeZone TimeZone
+		expected []byte
+	}{
+		{CentralTimeZone, timezones.USCentral},
+		{EasternTimeZone, timezones.USEastern},
+		{MountainTimeZone, timezones.USMountain},
+		{PacificTimeZone, timezones.USPacific},
+		{AlaskaTimeZone, timezones.USAlaska},
+		{"", []byte{}}, // Invalid time zone defaults to UTC
+	}
+
+	for _, tt := range tests {
+		builder := strings.Builder{}
+		cal := mockCalendar(tt.timeZone)
+		cal.generateTimeZones(&builder)
+		result := builder.String()
+		expectedTimeZones := tt.expected
+		if !strings.Contains(result, string(expectedTimeZones)) {
+			t.Errorf("Expected time zone definition not found in generated iCal data")
+		}
+		builder.Reset()
+	}
+
+}
+
 func TestListConflicts(t *testing.T) {
 	cal := mockCalendar()
 	conflicts := cal.ListConflicts()
@@ -56,12 +87,16 @@ func TestResolveConflicts(t *testing.T) {
 
 }
 
-func mockCalendar() *Calendar {
+func mockCalendar(tz ...TimeZone) *Calendar {
+	var zone TimeZone = EasternTimeZone
+	if tz != nil {
+		zone = tz[0]
+	}
 	cal := Create("Test Calendar", "A calendar for testing")
 	cal.AddEvent(Event{Title: "Valid Event",
 		StartDate: time.Now(),
 		EndDate:   time.Now().Add(1 * time.Hour),
-		TimeZone:  EasternTimeZone,
+		TimeZone:  zone,
 	})
 	cal.AddEvent(mockEvent())
 	return cal

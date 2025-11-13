@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "BYDAY",
+        "BYMONTH",
         "CALSCALE",
         "CUTYPE",
         "DTEND",
@@ -8,6 +9,7 @@
         "DTSTART",
         "EXDATE",
         "ical",
+        "PARTSTAT",
         "PRODID",
         "RRULE",
         "VCALENDAR",

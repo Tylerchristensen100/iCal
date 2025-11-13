@@ -52,6 +52,8 @@ func (c *Calendar) Generate() ([]byte, error) {
 	builder.WriteString("CALSCALE:GREGORIAN" + lineBreak)
 	builder.WriteString("METHOD:PUBLISH" + lineBreak)
 
+	c.generateTimeZones(&builder)
+
 	for _, event := range c.Events {
 		event, err := event.Generate()
 		if err != nil {
@@ -61,6 +63,16 @@ func (c *Calendar) Generate() ([]byte, error) {
 	}
 	builder.WriteString("END:VCALENDAR" + lineBreak)
 	return []byte(builder.String()), nil
+}
+
+func (c *Calendar) generateTimeZones(builder *strings.Builder) {
+	uniqueTimeZones := make(map[TimeZone]bool)
+	for _, event := range c.Events {
+		uniqueTimeZones[event.TimeZone] = true
+	}
+	for timeZone := range uniqueTimeZones {
+		builder.Write(timeZone.ics())
+	}
 }
 
 // ListConflicts returns a list of events that have scheduling conflicts with other events in the calendar.

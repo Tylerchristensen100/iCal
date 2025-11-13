@@ -10,6 +10,7 @@ type Event struct {
 	Title       string
 	Description string
 	Location    string
+	Organizer   *Participant
 	StartDate   time.Time
 	EndDate     time.Time
 	TimeZone    TimeZone
@@ -20,7 +21,7 @@ type Event struct {
 
 	// Everyone invited to the event
 	// Should be in email format
-	Attendees []string
+	Attendees []Participant
 }
 
 // Generate creates the iCal formatted string for the event.
@@ -83,12 +84,21 @@ func (e *Event) CancelOnDate(cancelDate time.Time) error {
 	return ErrNoRecurrenceFound
 }
 
-func (e *Event) AddAttendee(email string) error {
+func (e *Event) AddAttendee(name, email string) error {
 	if !validateEmail(email) {
 		return ErrInvalidEmail
 	}
 
-	e.Attendees = append(e.Attendees, email)
+	e.Attendees = append(e.Attendees, Participant{Name: name, Email: email})
+	return nil
+}
+
+func (e *Event) AddOrganizer(name, email string) error {
+	if !validateEmail(email) {
+		return ErrInvalidEmail
+	}
+
+	e.Organizer = &Participant{Name: name, Email: email}
 	return nil
 }
 
@@ -102,18 +112,24 @@ func (e *Event) buildEventDetails(builder *strings.Builder) error {
 	builder.WriteString("SUMMARY:" + e.Title + lineBreak)
 	builder.WriteString("LOCATION:" + e.Location + lineBreak)
 
+	if e.Organizer != nil {
+		err := e.Organizer.generateOrganizer(builder)
+		if err != nil {
+			return err
+		}
+	}
+
 	if e.Description != "" {
 		description := cleanDescription(e.Description)
 		builder.WriteString("DESCRIPTION:" + description + lineBreak)
 	}
 	for _, attendee := range e.Attendees {
-		if !validateEmail(attendee) {
-			return ErrInvalidEmail
+		err := attendee.generate(builder)
+		if err != nil {
+			return err
 		}
-		builder.WriteString(fmt.Sprintf("ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;CN=%s;X-NUM-GUESTS=0:mailto:%s", attendee, attendee) + lineBreak)
 	}
 	return nil
-
 }
 
 func (e *Event) HasRecurrences() bool {
@@ -216,11 +232,4 @@ func timeToICal(t time.Time) string {
 
 func stripDay(t time.Time) time.Time {
 	return time.Date(0, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
-}
-
-func validateEmail(email string) bool {
-	if !strings.Contains(email, "@") || strings.HasPrefix(email, "@") || strings.HasSuffix(email, "@") {
-		return false
-	}
-	return true
 }

@@ -117,7 +117,7 @@ func TestAddAttendee(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		err := event.AddAttendee(tt.email)
+		err := event.AddAttendee(tt.email, tt.email)
 		if tt.expectError && err == nil {
 			t.Errorf("Expected error for email %s, but got none", tt.email)
 		}
@@ -127,7 +127,7 @@ func TestAddAttendee(t *testing.T) {
 		if !tt.expectError {
 			found := false
 			for _, attendee := range event.Attendees {
-				if attendee == tt.email {
+				if attendee.Email == tt.email {
 					found = true
 					break
 				}
@@ -154,6 +154,6 @@ func mockEvent() Event {
 				EndTime:   time.Date(0, 0, 0, 10, 0, 0, 0, time.UTC),
 			},
 		},
-		Attendees: []string{"test@example.com"},
+		Attendees: []Participant{{Name: "Test User", Email: "test@example.com"}},
 	}
 }
