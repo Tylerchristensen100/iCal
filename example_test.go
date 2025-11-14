@@ -40,7 +40,7 @@ func ExampleCalendar_AddEvent() {
 	// Output:
 	// BEGIN:VCALENDAR
 	// VERSION:2.0
-	// PRODID:-//UVU//Class Schedule//EN
+	// PRODID:-//TylerChristensen100//iCal_Generator//EN
 	// CALSCALE:GREGORIAN
 	// METHOD:PUBLISH
 	// BEGIN:VTIMEZONE
@@ -62,5 +62,51 @@ func ExampleCalendar_AddEvent() {
 	// LOCATION:
 	// ORGANIZER;CN=Organizer:mailto:example@github.com
 	// END:VEVENT
+	// END:VCALENDAR
+}
+
+func ExampleCalendar_AddTodo() {
+	cal := Create("Example Calendar", "An example calendar")
+	todo := Todo{
+		Summary:     "Finish Report",
+		Description: "Complete the quarterly report.",
+		Status:      InProcessStatus,
+		Organizer:   Participant{Name: "Manager", Email: "manager@example.com"},
+	}
+	err := cal.AddTodo(todo)
+	if err != nil {
+		panic(err)
+	}
+
+	output, err := cal.Generate()
+	if err != nil {
+		panic(err)
+	}
+
+	// Remove the generated attributes for consistent output
+	regDTSTAMP := regexp.MustCompile(`DTSTAMP:\d{8}T\d{6}\n?`)
+	regUID := regexp.MustCompile(`UID:[^\n]+\n?`)
+	// Generated value at generation time, replace with fixed value
+	validOutput := regDTSTAMP.ReplaceAllString(string(output), "DTSTAMP:20251114T212240Z")
+	validOutput = regUID.ReplaceAllString(validOutput, "UID:Finish_Report-1763158003@iCal.go\n")
+	// Normalize line endings for consistent output across platforms
+	validOutput = strings.ReplaceAll(validOutput, "\r\n", "\n")
+	// END the removal of generated attributes
+
+	fmt.Println(validOutput)
+	// Output:
+	// BEGIN:VCALENDAR
+	// VERSION:2.0
+	// PRODID:-//TylerChristensen100//iCal_Generator//EN
+	// CALSCALE:GREGORIAN
+	// METHOD:PUBLISH
+	// BEGIN:VTODO
+	// UID:Finish_Report-1763158003@iCal.go
+	// DTSTAMP:20251114T212240Z
+	// SUMMARY:Finish Report
+	// STATUS:IN-PROCESS
+	// DESCRIPTION:Complete the quarterly report.
+	// ORGANIZER;CN=Manager:mailto:manager@example.com
+	// END:VTODO
 	// END:VCALENDAR
 }

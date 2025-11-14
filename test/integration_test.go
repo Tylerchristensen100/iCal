@@ -71,7 +71,7 @@ func TestIntegration(t *testing.T) {
 		t.Errorf("Generated calendar does not contain expected recurrence rule: %s", expectedRecurrence)
 	}
 
-	err = os.WriteFile("result_integration_test.ics", []byte(calendar), 0644)
+	err = os.WriteFile("./tmp/result_integration_test.ics", []byte(calendar), 0644)
 	if err != nil {
 		t.Fatalf("Failed to write calendar to file: %v", err)
 	}

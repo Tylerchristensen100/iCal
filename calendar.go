@@ -81,7 +81,7 @@ func (c *Calendar) Generate() ([]byte, error) {
 	var builder strings.Builder
 	builder.WriteString("BEGIN:VCALENDAR" + lineBreak)
 	builder.WriteString("VERSION:2.0" + lineBreak)
-	builder.WriteString("PRODID:-//UVU//Class Schedule//EN" + lineBreak)
+	builder.WriteString("PRODID:-//TylerChristensen100//iCal_Generator//EN" + lineBreak)
 	builder.WriteString("CALSCALE:GREGORIAN" + lineBreak)
 	builder.WriteString("METHOD:PUBLISH" + lineBreak)
 
