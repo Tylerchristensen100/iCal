@@ -120,7 +120,7 @@ func (c *Calendar) generateTimeZones(builder *strings.Builder) {
 	for timeZone := range uniqueTimeZones {
 		data, found := timeZone.iCal()
 		if found {
-			builder.WriteString(data + lineBreak)
+			builder.WriteString(data)
 		}
 	}
 }
