@@ -15,6 +15,8 @@ type Calendar struct {
 	Name        string
 	Description string
 	Events      []Event
+	Journals    []Journal
+	Todos       []Todo
 }
 
 func (c *Calendar) AddEvent(e Event) error {
@@ -61,6 +63,20 @@ func (c *Calendar) Generate() ([]byte, error) {
 		}
 		builder.WriteString(event)
 	}
+	for _, journal := range c.Journals {
+		err := journal.generate(&builder)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, todo := range c.Todos {
+		err := todo.generate(&builder)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	builder.WriteString("END:VCALENDAR" + lineBreak)
 	return []byte(builder.String()), nil
 }

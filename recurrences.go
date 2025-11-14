@@ -37,10 +37,11 @@ func (r *Recurrences) Generate(startDate, endDate time.Time, timeZone TimeZone) 
 	builder.WriteString(lineBreak)
 	builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", timeZone.ID(), timeToICal(startTime.Add(r.EndTime.Sub(r.StartTime)))))
 	builder.WriteString(lineBreak)
-	builder.WriteString("RRULE:")
-	builder.WriteString(fmt.Sprintf("FREQ=%s;", r.Frequency))
-	builder.WriteString(fmt.Sprintf("BYDAY=%s;", weekdayToICal(r.Day)))
-	builder.WriteString(fmt.Sprintf("UNTIL=%s;", fmt.Sprintf("%sZ", timeToICal(endTime.UTC()))))
+	// builder.WriteString("RRULE:")
+	// builder.WriteString(fmt.Sprintf("FREQ=%s;", r.Frequency))
+	// builder.WriteString(fmt.Sprintf("BYDAY=%s;", weekdayToICal(r.Day)))
+	// builder.WriteString(fmt.Sprintf("UNTIL=%s;", fmt.Sprintf("%sZ", timeToICal(endTime.UTC()))))
+	builder.WriteString(generateRRULE(r.Frequency, r.Day, endTime))
 	if len(r.Exceptions) > 0 {
 		for _, ex := range r.Exceptions {
 			builder.WriteString(lineBreak)
@@ -49,6 +50,10 @@ func (r *Recurrences) Generate(startDate, endDate time.Time, timeZone TimeZone) 
 	}
 
 	return builder.String(), nil
+}
+
+func generateRRULE(f Frequency, d time.Weekday, endTime time.Time) string {
+	return fmt.Sprintf("RRULE:FREQ=%s;BYDAY=%s;UNTIL=%s;"+lineBreak, f, weekdayToICal(d), fmt.Sprintf("%sZ", timeToICal(endTime.UTC())))
 }
 
 func (r *Recurrences) Valid() bool {
@@ -66,7 +71,7 @@ func (r *Recurrences) Valid() bool {
 }
 
 func (r *Recurrences) uid() string {
-	return fmt.Sprintf("%s-%s-%s", r.Frequency,
+	return fmt.Sprintf("%s-%s-%s@iCal.go", r.Frequency,
 		r.StartTime.UTC().Format("15_04"), r.EndTime.UTC().Format("15_04"))
 }
 func (r *Recurrences) ConflictsWith(other Recurrences) (bool, time.Time) {

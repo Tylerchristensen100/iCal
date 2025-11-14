@@ -105,7 +105,7 @@ func (e *Event) AddOrganizer(name, email string) error {
 }
 
 func (e *Event) uid() string {
-	return fmt.Sprintf("%s-%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
+	return fmt.Sprintf("%s-%s-%s@iCal.go", strings.ReplaceAll(e.Title, " ", "_"),
 		e.StartDate.Weekday(), e.EndDate.Weekday())
 }
 
