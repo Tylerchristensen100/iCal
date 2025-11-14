@@ -15,6 +15,8 @@ type Calendar struct {
 	Name        string
 	Description string
 	Events      []Event
+	Journals    []Journal
+	Todos       []Todo
 }
 
 func (c *Calendar) AddEvent(e Event) error {
@@ -22,6 +24,22 @@ func (c *Calendar) AddEvent(e Event) error {
 		return ErrInvalidEvent
 	}
 	c.Events = append(c.Events, e)
+	return nil
+}
+
+func (c *Calendar) AddJournal(j Journal) error {
+	if !j.valid() {
+		return ErrInvalidJournal
+	}
+	c.Journals = append(c.Journals, j)
+	return nil
+}
+
+func (c *Calendar) AddTodo(t Todo) error {
+	if !t.valid() {
+		return ErrInvalidTodo
+	}
+	c.Todos = append(c.Todos, t)
 	return nil
 }
 
@@ -45,6 +63,10 @@ func (c *Calendar) Save(path string) error {
 
 // Generate creates the iCal formatted string for the entire calendar.
 func (c *Calendar) Generate() ([]byte, error) {
+	if !c.Valid() {
+		return nil, ErrInvalidCalendar
+	}
+
 	var builder strings.Builder
 	builder.WriteString("BEGIN:VCALENDAR" + lineBreak)
 	builder.WriteString("VERSION:2.0" + lineBreak)
@@ -61,6 +83,20 @@ func (c *Calendar) Generate() ([]byte, error) {
 		}
 		builder.WriteString(event)
 	}
+	for _, journal := range c.Journals {
+		err := journal.generate(&builder)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, todo := range c.Todos {
+		err := todo.generate(&builder)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	builder.WriteString("END:VCALENDAR" + lineBreak)
 	return []byte(builder.String()), nil
 }
@@ -76,6 +112,33 @@ func (c *Calendar) generateTimeZones(builder *strings.Builder) {
 			builder.WriteString(data + lineBreak)
 		}
 	}
+}
+
+func (c *Calendar) Valid() bool {
+	if c.Name == "" {
+		return false
+	}
+	for _, event := range c.Events {
+		if !event.Valid() {
+			return false
+		}
+	}
+	for _, journal := range c.Journals {
+		if !journal.valid() {
+			return false
+		}
+	}
+	for _, todo := range c.Todos {
+		if !todo.valid() {
+			return false
+		}
+	}
+
+	// If there is nothing in the calendar, it's invalid
+	if len(c.Events) == 0 && len(c.Journals) == 0 && len(c.Todos) == 0 {
+		return false
+	}
+	return true
 }
 
 // ListConflicts returns a list of events that have scheduling conflicts with other events in the calendar.

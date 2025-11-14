@@ -14,7 +14,8 @@
         "RRULE",
         "validtz",
         "VCALENDAR",
-        "VEVENT"
+        "VEVENT",
+        "VTODO"
     ],
     "cSpell.ignorePaths": [
         "**/timezones/tzid.go"

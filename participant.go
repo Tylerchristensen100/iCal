@@ -11,7 +11,7 @@ type Participant struct {
 }
 
 func (p *Participant) generate(builder *strings.Builder) error {
-	if !validateEmail(p.Email) {
+	if !p.valid() {
 		return ErrInvalidEmail
 	}
 	builder.WriteString(fmt.Sprintf("ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=%s;X-NUM-GUESTS=0:mailto:%s", p.Name, p.Email) + lineBreak)
@@ -19,11 +19,15 @@ func (p *Participant) generate(builder *strings.Builder) error {
 }
 
 func (p *Participant) generateOrganizer(builder *strings.Builder) error {
-	if !validateEmail(p.Email) {
+	if !p.valid() {
 		return ErrInvalidEmail
 	}
 	builder.WriteString(fmt.Sprintf("ORGANIZER;CN=%s:mailto:%s", p.Name, p.Email) + lineBreak)
 	return nil
+}
+
+func (p *Participant) valid() bool {
+	return validateEmail(p.Email) && p.Name != ""
 }
 
 func validateEmail(email string) bool {

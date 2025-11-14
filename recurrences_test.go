@@ -169,6 +169,35 @@ func TestFindEndDate(t *testing.T) {
 	}
 }
 
+func TestGenerateRRule(t *testing.T) {
+	var tests = []struct {
+		f        Frequency
+		weekday  time.Weekday
+		endTime  time.Time
+		expected string
+	}{
+		{
+			f:        WeeklyFrequency,
+			weekday:  time.Monday,
+			endTime:  time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC),
+			expected: "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20241231T000000Z;\r\n",
+		},
+		{
+			f:        DailyFrequency,
+			weekday:  time.Sunday,
+			endTime:  time.Date(2025, 1, 15, 0, 0, 0, 0, time.UTC),
+			expected: "RRULE:FREQ=DAILY;BYDAY=SU;UNTIL=20250115T000000Z;\r\n",
+		},
+	}
+
+	for _, tt := range tests {
+		rrule := generateRRULE(tt.f, tt.weekday, tt.endTime)
+		if rrule != tt.expected {
+			t.Errorf("generateRRULE() returned %q, expected %q", rrule, tt.expected)
+		}
+	}
+}
+
 func TestDayOfWeekFromString(t *testing.T) {
 	var tests = []struct {
 		input    string
@@ -224,7 +253,7 @@ func TestWeekdayToICal(t *testing.T) {
 
 func TestRecurrenceUID(t *testing.T) {
 	rec := mockRecurrence()
-	expectedUID := "WEEKLY-09_00-10_00"
+	expectedUID := "WEEKLY-09_00-10_00@iCal.go"
 	if rec.uid() != expectedUID {
 		t.Errorf("Expected UID %s, got %s", expectedUID, rec.uid())
 	}
