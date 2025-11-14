@@ -118,6 +118,7 @@ func (r *Reminder) valid() bool {
 	return true
 }
 
+// Format time.Duration as iCal TRIGGER value
 func formatDurationAsTrigger(d time.Duration) string {
 	// iCal duration format is using ISO 8601 Durations
 	// P(n)Y(n)M(n)DT(n)H(n)M(n)S

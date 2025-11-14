@@ -282,23 +282,3 @@ func (e *Event) Valid() bool {
 
 	return true
 }
-
-func cleanDescription(desc string) string {
-	// Truncate description to 75 characters (including 'DESCRIPTION:' prefix)
-	// https://icalendar.org/iCalendar-RFC-5545/3-1-content-lines.html
-	var description string
-	description = strings.ReplaceAll(desc, ";", ",")
-	description = strings.ReplaceAll(description, "\\", "")
-	if len(description) > 63 {
-		description = description[:60] + "..."
-	}
-	return strings.ReplaceAll(description, "\n", " ")
-}
-
-func timeToICal(t time.Time) string {
-	return t.Format(iCalTimeLayout)
-}
-
-func stripDay(t time.Time) time.Time {
-	return time.Date(0, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
-}

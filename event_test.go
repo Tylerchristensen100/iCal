@@ -195,22 +195,6 @@ func TestAddOrganizer(t *testing.T) {
 	}
 }
 
-func TestCleanDescription(t *testing.T) {
-	rawDescription := "This is a test description with special characters: \n , ; \\ and more."
-	cleanedDescription := cleanDescription(rawDescription)
-	expectedDescription := "This is a test description with special characters:   , ,  a..."
-	if cleanedDescription != expectedDescription {
-		t.Errorf("Expected cleaned description to be:\n%s\nGot:\n%s", expectedDescription, cleanedDescription)
-	}
-
-	clean := "Short description."
-	cleaned := cleanDescription(clean)
-	if cleaned != clean {
-		t.Errorf("Expected cleaned description to be unchanged:\n%s\nGot:\n%s", clean, cleaned)
-	}
-
-}
-
 func TestConflictsWithSingleEvent(t *testing.T) {
 	event1 := Event{
 		Title:     "Event 1",

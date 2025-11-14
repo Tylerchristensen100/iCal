@@ -14,3 +14,11 @@ func Create(name, description string) *Calendar {
 		Description: description,
 	}
 }
+
+func AddOrganizer(name, email string) *Participant {
+	p := Participant{Name: name, Email: email}
+	if !p.valid() {
+		return nil
+	}
+	return &p
+}
