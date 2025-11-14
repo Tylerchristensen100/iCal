@@ -25,7 +25,6 @@ type Journal struct {
 
 type JournalStatus string
 
-// TODO: Add to either Event or Calendar method (whatever it is used as)
 func (j *Journal) generate(builder *strings.Builder) error {
 	if !j.valid() {
 		return errors.New("invalid journal entry")

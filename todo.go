@@ -40,7 +40,6 @@ type Todo struct {
 	Recurrence *Recurrences
 }
 
-// TODO: Add to either Event or Calendar method (whatever it is used as)
 func (t *Todo) generate(builder *strings.Builder) error {
 	if !t.valid() {
 		return errors.New("Invalid Todo component")
@@ -102,6 +101,11 @@ func (t *Todo) valid() bool {
 
 	if t.Recurrence != nil {
 		if t.Recurrence.Frequency != "" && t.Recurrence.Day < 0 {
+			return false
+		}
+	}
+	if t.Priority != nil {
+		if *t.Priority < 1 || *t.Priority > 9 {
 			return false
 		}
 	}

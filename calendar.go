@@ -27,6 +27,22 @@ func (c *Calendar) AddEvent(e Event) error {
 	return nil
 }
 
+func (c *Calendar) AddJournal(j Journal) error {
+	if !j.valid() {
+		return ErrInvalidJournal
+	}
+	c.Journals = append(c.Journals, j)
+	return nil
+}
+
+func (c *Calendar) AddTodo(t Todo) error {
+	if !t.valid() {
+		return ErrInvalidTodo
+	}
+	c.Todos = append(c.Todos, t)
+	return nil
+}
+
 // Saves the calendar to a file at the specified path.
 func (c *Calendar) Save(path string) error {
 	icalData, err := c.Generate()
@@ -47,6 +63,10 @@ func (c *Calendar) Save(path string) error {
 
 // Generate creates the iCal formatted string for the entire calendar.
 func (c *Calendar) Generate() ([]byte, error) {
+	if !c.Valid() {
+		return nil, ErrInvalidCalendar
+	}
+
 	var builder strings.Builder
 	builder.WriteString("BEGIN:VCALENDAR" + lineBreak)
 	builder.WriteString("VERSION:2.0" + lineBreak)
@@ -92,6 +112,33 @@ func (c *Calendar) generateTimeZones(builder *strings.Builder) {
 			builder.WriteString(data + lineBreak)
 		}
 	}
+}
+
+func (c *Calendar) Valid() bool {
+	if c.Name == "" {
+		return false
+	}
+	for _, event := range c.Events {
+		if !event.Valid() {
+			return false
+		}
+	}
+	for _, journal := range c.Journals {
+		if !journal.valid() {
+			return false
+		}
+	}
+	for _, todo := range c.Todos {
+		if !todo.valid() {
+			return false
+		}
+	}
+
+	// If there is nothing in the calendar, it's invalid
+	if len(c.Events) == 0 && len(c.Journals) == 0 && len(c.Todos) == 0 {
+		return false
+	}
+	return true
 }
 
 // ListConflicts returns a list of events that have scheduling conflicts with other events in the calendar.

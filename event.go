@@ -28,6 +28,10 @@ type Event struct {
 
 // Generate creates the iCal formatted string for the event.
 func (e *Event) Generate() (string, error) {
+	if !e.Valid() {
+		return "", ErrInvalidEvent
+	}
+
 	var builder strings.Builder
 
 	if len(e.Recurrences) > 0 {
@@ -101,6 +105,15 @@ func (e *Event) AddOrganizer(name, email string) error {
 	}
 
 	e.Organizer = &Participant{Name: name, Email: email}
+	return nil
+}
+
+func (e *Event) AddReminder(reminder Reminder) error {
+	if !reminder.valid() {
+		return ErrInvalidReminder
+	}
+
+	e.Reminders = append(e.Reminders, reminder)
 	return nil
 }
 
@@ -223,6 +236,35 @@ func (e *Event) Valid() bool {
 	if e.EndDate.Before(e.StartDate) || e.EndDate.Equal(e.StartDate) {
 		return false
 	}
+
+	if e.TimeZone == "" {
+		return false
+	}
+
+	if e.Reminders != nil {
+		for _, alarm := range e.Reminders {
+			if !alarm.valid() {
+				return false
+			}
+		}
+	}
+
+	if e.Recurrences != nil {
+		for _, rec := range e.Recurrences {
+			if !rec.Valid() {
+				return false
+			}
+		}
+	}
+
+	if e.Attendees != nil {
+		for _, attendee := range e.Attendees {
+			if !attendee.valid() {
+				return false
+			}
+		}
+	}
+
 	return true
 }
 

@@ -7,11 +7,13 @@ import (
 	"time"
 
 	ical "github.com/Tylerchristensen100/iCal"
+	"github.com/Tylerchristensen100/iCal/timezones"
 )
 
 func TestIntegration(t *testing.T) {
 	cal := ical.Create("Test Calendar", "This is a test calendar.")
-	cal.AddEvent(ical.Event{
+	timezone := ical.TimeZone(timezones.US_Eastern)
+	err := cal.AddEvent(ical.Event{
 		Title:       "Weekly Meeting",
 		Description: "Recurring Weekly",
 		StartDate:   time.Date(2024, 7, 1, 9, 0, 0, 0, time.UTC),
@@ -23,9 +25,13 @@ func TestIntegration(t *testing.T) {
 			EndTime:   time.Date(0, 1, 1, 10, 0, 0, 0, time.UTC),
 		},
 		},
+		TimeZone: timezone,
 	})
+	if err != nil {
+		t.Fatalf("Failed to add event: %v", err)
+	}
 
-	cal.AddEvent(ical.Event{
+	err = cal.AddEvent(ical.Event{
 		Title:       "Monthly Meeting",
 		Description: "Recurring Monthly",
 		StartDate:   time.Date(2024, 7, 3, 14, 0, 0, 0, time.UTC),
@@ -38,7 +44,11 @@ func TestIntegration(t *testing.T) {
 			Exceptions: []time.Time{time.Date(2025, 12, 3, 14, 0, 0, 0, time.UTC)},
 		},
 		},
+		TimeZone: timezone,
 	})
+	if err != nil {
+		t.Fatalf("Failed to add event: %v", err)
+	}
 
 	c, err := cal.Generate()
 	if err != nil {

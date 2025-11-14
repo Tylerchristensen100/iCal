@@ -10,6 +10,9 @@ const (
 	errNoRecurrenceFoundMessage = "no recurrence found for the specified day"
 	errInvalidEmailMessage      = "invalid email format"
 	errInvalidReminderMessage   = "invalid reminder"
+	errInvalidJournalMessage    = "invalid journal entry"
+	errInvalidTodoMessage       = "invalid todo component"
+	errInvalidCalendarMessage   = "invalid calendar"
 )
 
 var (
@@ -33,6 +36,15 @@ var (
 
 	// ErrInvalidReminder is returned when a reminder is not valid.
 	ErrInvalidReminder = fmt.Errorf(errInvalidReminderMessage)
+
+	// ErrInvalidJournal is returned when a journal entry is not valid.
+	ErrInvalidJournal = fmt.Errorf(errInvalidJournalMessage)
+
+	// ErrInvalidTodo is returned when a todo component is not valid.
+	ErrInvalidTodo = fmt.Errorf(errInvalidTodoMessage)
+
+	// ErrInvalidCalendar is returned when a calendar is not valid.
+	ErrInvalidCalendar = fmt.Errorf(errInvalidCalendarMessage)
 )
 
 // ErrEndTimeBeforeStartTime is returned when the end time is before the start time.

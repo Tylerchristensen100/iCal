@@ -31,6 +31,41 @@ func TestAddEvent(t *testing.T) {
 	}
 }
 
+func TestAddJournal(t *testing.T) {
+	var tests = []struct {
+		journal Journal
+		success bool
+	}{
+		{*mockJournal(), true},
+		{Journal{Summary: "", Description: "No title journal"}, false}, // Invalid: empty title
+	}
+	cal := mockCalendar()
+	for _, tt := range tests {
+		err := cal.AddJournal(tt.journal)
+		if (err == nil) != tt.success {
+			t.Errorf("AddJournal(%v) = %v, want success %v", tt.journal, err, tt.success)
+		}
+	}
+}
+
+func TestAddTodo(t *testing.T) {
+	due := time.Now().Add(24 * time.Hour)
+	var tests = []struct {
+		todo    Todo
+		success bool
+	}{
+		{*mockTodo(), true},
+		{Todo{Summary: "", Due: &due}, false}, // Invalid: empty title
+	}
+	cal := mockCalendar()
+	for _, tt := range tests {
+		err := cal.AddTodo(tt.todo)
+		if (err == nil) != tt.success {
+			t.Errorf("AddTodo(%v) = %v, want success %v", tt.todo, err, tt.success)
+		}
+	}
+}
+
 func TestGenerateCalendar(t *testing.T) {
 	cal := mockCalendar()
 	ical, err := cal.Generate()
@@ -101,6 +136,32 @@ func TestResolveConflicts(t *testing.T) {
 
 }
 
+func TestGenerateCalendarWithJournalOnly(t *testing.T) {
+	cal := Create("Journal Only Calendar", "A calendar with only journals")
+	cal.AddJournal(*mockJournal())
+
+	ical, err := cal.Generate()
+	if err != nil {
+		t.Errorf("Generate() returned error: %v", err)
+	}
+	if len(ical) == 0 {
+		t.Errorf("Generate() returned empty iCal string")
+	}
+}
+
+func TestGenerateCalendarWithTodoOnly(t *testing.T) {
+	cal := Create("Todo Only Calendar", "A calendar with only todos")
+	cal.AddTodo(*mockTodo())
+
+	ical, err := cal.Generate()
+	if err != nil {
+		t.Errorf("Generate() returned error: %v", err)
+	}
+	if len(ical) == 0 {
+		t.Errorf("Generate() returned empty iCal string")
+	}
+}
+
 func mockCalendar(tz ...TimeZone) *Calendar {
 	var zone TimeZone = TimeZone(timezones.US_Eastern)
 	if tz != nil {
@@ -113,5 +174,9 @@ func mockCalendar(tz ...TimeZone) *Calendar {
 		TimeZone:  zone,
 	})
 	cal.AddEvent(mockEvent())
+
+	cal.AddJournal(*mockJournal())
+
+	cal.AddTodo(*mockTodo())
 	return cal
 }

@@ -56,9 +56,52 @@ func TestHasRecurrences(t *testing.T) {
 	}
 }
 
+func TestAddReminder(t *testing.T) {
+	event := mockEvent()
+	var tests = []struct {
+		reminder    Reminder
+		expectError bool
+	}{
+		{*mockReminder(), false},
+		{Reminder{
+			Action:      EmailReminderAction,
+			Description: "Test Reminder",
+			Trigger:     time.Duration(-15 * time.Minute),
+			Attendees:   []Participant{},
+		}, true},
+		{Reminder{
+			Action:      "INVALID",
+			Description: "Test Reminder",
+			Trigger:     time.Duration(-15 * time.Minute),
+		}, true}, // Invalid: negative minutes
+	}
+
+	for _, tt := range tests {
+		err := event.AddReminder(tt.reminder)
+		if tt.expectError && err == nil {
+			t.Errorf("Expected error for reminder %v, but got none", tt.reminder)
+		}
+		if !tt.expectError && err != nil {
+			t.Errorf("Did not expect error for reminder %v, but got: %v", tt.reminder, err)
+		}
+		if !tt.expectError {
+			found := false
+			for _, reminder := range event.Reminders {
+				if reminder.Description == tt.reminder.Description {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("Expected reminder with description %s to be in event reminders, but it was not found", tt.reminder.Description)
+			}
+		}
+	}
+}
+
 func TestEventUID(t *testing.T) {
 	event := mockEvent()
-	expectedUID := "Test_Event-Monday-Monday"
+	expectedUID := "Test_Event-Monday-Monday@iCal.go"
 	if event.uid() != expectedUID {
 		t.Errorf("Expected UID %s, got %s", expectedUID, event.uid())
 	}
@@ -166,6 +209,46 @@ func TestCleanDescription(t *testing.T) {
 		t.Errorf("Expected cleaned description to be unchanged:\n%s\nGot:\n%s", clean, cleaned)
 	}
 
+}
+
+func TestConflictsWithSingleEvent(t *testing.T) {
+	event1 := Event{
+		Title:     "Event 1",
+		StartDate: time.Date(2025, time.November, 17, 9, 0, 0, 0, time.UTC),
+		EndDate:   time.Date(2025, time.November, 17, 10, 0, 0, 0, time.UTC),
+		TimeZone:  TimeZone(timezones.US_Eastern),
+	}
+
+	event2 := Event{
+		Title:     "Event 2",
+		StartDate: time.Date(2025, time.November, 17, 9, 30, 0, 0, time.UTC),
+		EndDate:   time.Date(2025, time.November, 17, 10, 30, 0, 0, time.UTC),
+		TimeZone:  TimeZone(timezones.US_Eastern),
+	}
+
+	conflict, _ := event1.ConflictsWith(&event2)
+	if !conflict {
+		t.Errorf("Expected events to conflict, but ConflictsWith() returned false")
+	}
+}
+
+func TestConflictWithRecurringEvent(t *testing.T) {
+	event1 := mockEvent()
+
+	event2 := Event{
+		Title:     "Event 2",
+		StartDate: time.Date(2025, time.November, 24, 9, 30, 0, 0, time.UTC),
+		EndDate:   time.Date(2025, time.November, 24, 10, 30, 0, 0, time.UTC),
+		TimeZone:  TimeZone(timezones.US_Eastern),
+	}
+	conflict, conflictDate := event1.ConflictsWith(&event2)
+	if !conflict {
+		t.Errorf("Expected events to conflict, but ConflictsWith() returned false")
+	}
+	expectedDate := time.Date(2025, time.November, 24, 9, 0, 0, 0, time.UTC)
+	if !conflictDate.Equal(expectedDate) {
+		t.Errorf("Expected conflict date to be %v, got %v", expectedDate, conflictDate)
+	}
 }
 
 func mockEvent() Event {
