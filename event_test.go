@@ -184,7 +184,7 @@ func TestAddAttendee(t *testing.T) {
 	}
 }
 
-func TestAddOrganizer(t *testing.T) {
+func TestAddOrganizerEvent(t *testing.T) {
 	event := mockEvent()
 	err := event.AddOrganizer("Test Organizer", "test@example.com")
 	if err != nil {

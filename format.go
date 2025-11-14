@@ -26,6 +26,6 @@ func escapeText(text string) string {
 	text = strings.ReplaceAll(text, "\\", "\\\\")
 	text = strings.ReplaceAll(text, ";", ",")
 	text = strings.ReplaceAll(text, "\r", "")
-	text = strings.ReplaceAll(text, "\n", "")
+	text = strings.ReplaceAll(text, "\n", " ")
 	return text
 }

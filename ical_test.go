@@ -24,3 +24,26 @@ func TestCreate(t *testing.T) {
 	}
 
 }
+
+func TestAddOrganizer(t *testing.T) {
+	name := "John Doe"
+	email := "john.doe@example.com"
+
+	organizer := AddOrganizer(name, email)
+	if organizer == nil {
+		t.Errorf("AddOrganizer() returned nil for valid name and email")
+	} else {
+		if organizer.Name != name {
+			t.Errorf("Expected organizer name to be '%s', got '%s'", name, organizer.Name)
+		}
+		if organizer.Email != email {
+			t.Errorf("Expected organizer email to be '%s', got '%s'", email, organizer.Email)
+		}
+	}
+
+	organizerFail := AddOrganizer("Invalid User", "invalid-email")
+	if organizerFail != nil {
+		t.Errorf("Expected nil for invalid email, got '%v'", organizerFail)
+	}
+
+}

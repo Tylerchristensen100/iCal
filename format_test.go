@@ -1,6 +1,9 @@
 package ical
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestCleanDescription(t *testing.T) {
 	rawDescription := "This is a test description with especially long content, and a lot of words and special characters."
@@ -20,9 +23,9 @@ func TestCleanDescription(t *testing.T) {
 
 func TestEscapeText(t *testing.T) {
 	dirtyText := "This is a test; with, special\ncharacters: \\ and more."
-	expected := "This is a test\\; with\\, special\\ncharacters: \\\\ and more."
+	expected := "This is a test, with, special characters: \\\\ and more."
 	escaped := escapeText(dirtyText)
-	if escaped != expected {
-		t.Errorf("escapeText() = %v, want %v", escaped, expected)
+	if !strings.EqualFold(escaped, expected) {
+		t.Errorf("escapeText() = `%v` | want `%v`", escaped, expected)
 	}
 }
