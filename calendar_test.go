@@ -103,7 +103,7 @@ func TestGenerateTimeZones(t *testing.T) {
 }
 
 func TestSave(t *testing.T) {
-	const fileName = "test_calendar.ics"
+	const fileName = "./test/tmp/test_calendar.ics"
 	cal := mockCalendar()
 	err := cal.Save(fileName)
 	if err != nil {

@@ -9,6 +9,10 @@ iCal is a Go library for generating iCalendar (.ics) files with support for recu
 
 - Create events with start and end times, summaries, descriptions, and locations.
 - Define recurrence rules for events (daily, weekly, monthly, yearly).
+- Handle 1 time exceptions for recurring events.
+- Support for To-Do and Journal components.
+- Set reminders for events with various actions (display, email, audio).
+- Support for all major time zones via the iCal_VTIMEZONE library.
 - Export calendars to .ics files compatible with popular calendar applications.
 
 ## Installation
@@ -78,3 +82,14 @@ func main() {
 }
 
 ```
+
+
+
+## Notes
+- TimeZones are provided via the [iCal_VTIMEZONE](https://github.com/Tylerchristensen100/iCal_VTIMEZONE) library.
+- Timezones are embedded directly into a map within this library for ease of use.  This means there is a 104kb increase in binary size.  The total size of the built library is approximately 550Kb.
+
+
+
+## Resources
+ - [iCalendar Specification (RFC 5545)](https://icalendar.org/RFC-Specifications/iCalendar-RFC-5545/)

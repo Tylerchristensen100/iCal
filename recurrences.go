@@ -47,10 +47,6 @@ func (r *Recurrences) Generate(startDate, endDate time.Time, timeZone TimeZone) 
 	builder.WriteString(lineBreak)
 	builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", timeZone.ID(), timeToICal(startTime.Add(r.EndTime.Sub(r.StartTime)))))
 	builder.WriteString(lineBreak)
-	// builder.WriteString("RRULE:")
-	// builder.WriteString(fmt.Sprintf("FREQ=%s;", r.Frequency))
-	// builder.WriteString(fmt.Sprintf("BYDAY=%s;", weekdayToICal(r.Day)))
-	// builder.WriteString(fmt.Sprintf("UNTIL=%s;", fmt.Sprintf("%sZ", timeToICal(endTime.UTC()))))
 	builder.WriteString(generateRRULE(r.Frequency, r.Day, endTime))
 	if len(r.Exceptions) > 0 {
 		for _, ex := range r.Exceptions {
