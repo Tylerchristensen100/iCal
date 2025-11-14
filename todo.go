@@ -10,16 +10,22 @@ import (
 // iCalendar VTODO component
 // https://icalendar.org/iCalendar-RFC-5545/3-6-2-to-do-component.html
 type Todo struct {
-	Summary     string
+
+	// REQUIRED: Short summary or title of the To-Do
+	Summary string
+
+	// OPTIONAL: Detailed description of the To-Do
 	Description string
 
-	// OPTIONAL: Date/Time the To-Do is due. Use a pointer for optionality.
+	// OPTIONAL: Date/Time the To-Do is due.
 	Due *time.Time
 
 	// OPTIONAL: Date/Time the To-Do was actually completed.
 	Completed *time.Time
 
 	// OPTIONAL: Current status of the To-Do.
+	//
+	// Possible Values: NeedsActionStatus, CompletedStatus, InProcessStatus, CancelledStatus
 	Status TodoStatus
 
 	// OPTIONAL: Priority (0-9).
@@ -31,12 +37,13 @@ type Todo struct {
 	// OPTIONAL: Start date/time of the To-Do.
 	StartDate *time.Time
 
-	// OPTIONAL: The Reminder (VALARM) components can be attached here.
-	Alarms []Reminder
+	// OPTIONAL: Reminders
+	Reminders []Reminder
 
-	// OPTIONAL: Organizer's email/CN.
+	// OPTIONAL: Organizer's name and email
 	Organizer Participant
 
+	// OPTIONAL: Recurrence rules for the To-Do
 	Recurrence *Recurrences
 }
 
@@ -77,9 +84,9 @@ func (t *Todo) generate(builder *strings.Builder) error {
 		}
 	}
 
-	if len(t.Alarms) > 0 {
-		for _, alarm := range t.Alarms {
-			err := alarm.generate(builder)
+	if len(t.Reminders) > 0 {
+		for _, reminder := range t.Reminders {
+			err := reminder.generate(builder)
 			if err != nil {
 				return err
 			}

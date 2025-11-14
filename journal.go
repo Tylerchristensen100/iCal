@@ -10,16 +10,22 @@ import (
 // iCalendar VJOURNAL component
 // https://icalendar.org/iCalendar-RFC-5545/3-6-3-journal-component.html
 type Journal struct {
-	StartDate *time.Time
 
+	// REQUIRED: Short summary or title of the journal entry
 	Summary string
 
+	// REQUIRED: Detailed description of the journal entry
 	Description string
 
 	// OPTIONAL: Current status of the journal entry.
+	//
+	// Possible Values: DraftJournal, FinalJournal, CancelledJournal
 	Status JournalStatus
 
-	// OPTIONAL: Organizer's email/CN.
+	// OPTIONAL: Start date of the journal entry.
+	StartDate *time.Time
+
+	// OPTIONAL: Organizer's name and email
 	Organizer Participant
 }
 

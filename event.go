@@ -8,21 +8,36 @@ import (
 
 // iCalendar VEVENT component
 type Event struct {
-	Title       string
-	Description string
-	Location    string
-	Organizer   *Participant
-	StartDate   time.Time
-	EndDate     time.Time
-	TimeZone    TimeZone
+	// REQUIRED: Title of the event
+	Title string
 
-	// Recurrence rules for the event
+	// REQUIRED: Description of the event
+	Description string
+
+	// OPTIONAL: Location of the event
+	Location string
+
+	// OPTIONAL: Organizer of the event
+	Organizer *Participant
+
+	// REQUIRED: Start and end date/time of the event
+	StartDate time.Time
+
+	// REQUIRED: End date/time of the event
+	EndDate time.Time
+
+	// REQUIRED: Time zone of the event
+	TimeZone TimeZone
+
+	// OPTIONAL: Recurrence rules for the event
 	// If empty, the event is non-recurring
 	Recurrences []Recurrences
 
-	// Everyone invited to the event
+	// OPTIONAL: List of attendees for the event
 	// Should be in email format
 	Attendees []Participant
+
+	// OPTIONAL: List of reminders for the event
 	Reminders []Reminder
 }
 

@@ -82,7 +82,7 @@ func TestGenerateTodo(t *testing.T) {
 func TestGenerateTodoWithReminder(t *testing.T) {
 	todo := mockTodo()
 	reminder := mockReminder()
-	todo.Alarms = []Reminder{*reminder}
+	todo.Reminders = []Reminder{*reminder}
 
 	var builder strings.Builder
 	err := todo.generate(&builder)

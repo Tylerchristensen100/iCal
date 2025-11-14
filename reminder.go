@@ -10,20 +10,38 @@ import (
 //
 // https://icalendar.org/iCalendar-RFC-5545/3-6-6-alarm-component.html
 type Reminder struct {
+
+	// REQUIRED: Description of the reminder
 	Description string
-	Action      ReminderAction
-	Trigger     time.Duration
-	Repeat      *int
-	// only for EMAIL action
+
+	// REQUIRED: Action to be taken when the reminder is triggered
+	//
+	// Possible Values: DisplayReminderAction, EmailReminderAction, AudioReminderAction
+	//
+	// **EmailReminderAction** requires SUMMARY & ATTENDEES properties
+	Action ReminderAction
+
+	// REQUIRED: Time before the event when the reminder should trigger
+	Trigger time.Duration
+
+	// OPTIONAL: Number of times the reminder should repeat
+	Repeat *int
+
+	// OPTIONAL: List of attendees to notify
+	//
+	// **Only for EMAIL action**
 	Attendees []Participant
 }
 
+// The Action to be taken when the reminder is triggered
 type ReminderAction string
 
 const (
 	DisplayReminderAction ReminderAction = "DISPLAY"
+
 	// Requires SUMMARY & ATTENDEES properties
 	EmailReminderAction ReminderAction = "EMAIL"
+
 	AudioReminderAction ReminderAction = "AUDIO"
 )
 

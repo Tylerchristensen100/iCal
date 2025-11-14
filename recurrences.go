@@ -8,10 +8,20 @@ import (
 
 // Recurrences represents the recurrence rules for an event.
 type Recurrences struct {
-	Frequency  Frequency
-	Day        time.Weekday
-	StartTime  time.Time
-	EndTime    time.Time
+
+	// REQUIRED: Frequency of the recurrence
+	Frequency Frequency
+
+	// REQUIRED: Day of the week for the recurrence
+	Day time.Weekday
+
+	// REQUIRED: Start and end time for each occurrence
+	StartTime time.Time
+
+	// REQUIRED: End time for each occurrence
+	EndTime time.Time
+
+	// OPTIONAL: List of exception dates for the recurrence
 	Exceptions []time.Time
 }
 

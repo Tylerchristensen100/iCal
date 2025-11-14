@@ -11,12 +11,23 @@ const (
 	iCalTimeLayout = "20060102T150405"
 )
 
+// Root VCALENDAR structure
+//
+// Events, Journals, and Todos are not required, but at least one must be present
+
 type Calendar struct {
-	Name        string
+	// REQUIRED: The name of the calendar
+	Name string
+
+	// REQUIRED: The description of the calendar
 	Description string
-	Events      []Event
-	Journals    []Journal
-	Todos       []Todo
+
+	// OPTIONAL: List of events in the calendar
+	Events []Event
+	// OPTIONAL: List of journals in the calendar
+	Journals []Journal
+	// OPTIONAL: List of todos in the calendar
+	Todos []Todo
 }
 
 func (c *Calendar) AddEvent(e Event) error {

@@ -6,7 +6,10 @@ import (
 )
 
 type Participant struct {
-	Name  string
+	// REQUIRED: Name of the participant
+	Name string
+
+	// REQUIRED: Email of the participant
 	Email string
 }
 
