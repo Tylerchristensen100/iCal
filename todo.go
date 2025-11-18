@@ -1,7 +1,6 @@
 package ical
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -49,33 +48,33 @@ type Todo struct {
 
 func (t *Todo) generate(builder *strings.Builder) error {
 	if !t.valid() {
-		return errors.New("Invalid Todo component")
+		return ErrInvalidTodo
 	}
-	builder.WriteString("BEGIN:VTODO" + lineBreak)
-	builder.WriteString("UID:" + t.uid() + lineBreak)
-	builder.WriteString("DTSTAMP:" + timeToICal(time.Now().UTC()) + lineBreak)
-	builder.WriteString("SUMMARY:" + t.Summary + lineBreak)
+	builder.WriteString(beginTodo + lineBreak)
+	builder.WriteString(uid + t.uid() + lineBreak)
+	builder.WriteString(timestamp + timeToICal(time.Now().UTC()) + lineBreak)
+	builder.WriteString(summary + t.Summary + lineBreak)
 	if t.Status != "" {
-		builder.WriteString("STATUS:" + string(t.Status) + lineBreak)
+		builder.WriteString(status + string(t.Status) + lineBreak)
 	}
 	if t.Due != nil {
-		builder.WriteString("DUE:" + timeToICal(*t.Due) + lineBreak)
+		builder.WriteString(due + timeToICal(*t.Due) + lineBreak)
 	}
 	if t.Completed != nil {
-		builder.WriteString("COMPLETED:" + timeToICal(*t.Completed) + lineBreak)
+		builder.WriteString(completed + timeToICal(*t.Completed) + lineBreak)
 	}
 	if t.Priority != nil {
-		builder.WriteString(fmt.Sprintf("PRIORITY:%d%s", *t.Priority, lineBreak))
+		builder.WriteString(priority + fmt.Sprintf("%d%s", *t.Priority, lineBreak))
 	}
 	if t.PercentComplete != nil {
-		builder.WriteString(fmt.Sprintf("PERCENT-COMPLETE:%d%s", *t.PercentComplete, lineBreak))
+		builder.WriteString(fmt.Sprintf(percentComplete+"%d%s", *t.PercentComplete, lineBreak))
 	}
 	if t.Description != "" {
-		description := cleanDescription(t.Description)
-		builder.WriteString("DESCRIPTION:" + description + lineBreak)
+		d := cleanDescription(t.Description)
+		builder.WriteString(description + d + lineBreak)
 	}
 	if t.StartDate != nil {
-		builder.WriteString("DTSTART:" + timeToICal(*t.StartDate) + lineBreak)
+		builder.WriteString(startDateTime + timeToICal(*t.StartDate) + lineBreak)
 	}
 	if t.Organizer.Email != "" {
 		err := t.Organizer.generateOrganizer(builder)
@@ -97,7 +96,7 @@ func (t *Todo) generate(builder *strings.Builder) error {
 		builder.WriteString(generateRRULE(t.Recurrence.Frequency, t.Recurrence.Day, t.Recurrence.EndTime))
 	}
 
-	builder.WriteString("END:VTODO" + lineBreak)
+	builder.WriteString(endTodo + lineBreak)
 	return nil
 }
 
@@ -124,7 +123,7 @@ func (t *Todo) valid() bool {
 }
 
 func (t *Todo) uid() string {
-	return fmt.Sprintf("%s-%d@iCal.go", strings.ReplaceAll(t.Summary, " ", "_"), time.Now().Unix())
+	return generateUid("%s-%d", strings.ReplaceAll(t.Summary, " ", "_"), time.Now().Unix())
 }
 
 type TodoStatus string

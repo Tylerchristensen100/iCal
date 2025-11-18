@@ -58,10 +58,6 @@ func (r *Recurrences) Generate(startDate, endDate time.Time, timeZone TimeZone) 
 	return builder.String(), nil
 }
 
-func generateRRULE(f Frequency, d time.Weekday, endTime time.Time) string {
-	return fmt.Sprintf("RRULE:FREQ=%s;BYDAY=%s;UNTIL=%s;"+lineBreak, f, weekdayToICal(d), fmt.Sprintf("%sZ", timeToICal(endTime.UTC())))
-}
-
 func (r *Recurrences) Valid() bool {
 	if !r.Frequency.Valid() {
 		return false
@@ -215,4 +211,8 @@ func validWeekday(d time.Weekday) bool {
 	default:
 		return false
 	}
+}
+
+func generateRRULE(f Frequency, d time.Weekday, endTime time.Time) string {
+	return fmt.Sprintf("RRULE:FREQ=%s;BYDAY=%s;UNTIL=%s;"+lineBreak, f, weekdayToICal(d), fmt.Sprintf("%sZ", timeToICal(endTime.UTC())))
 }

@@ -1,8 +1,6 @@
 package ical
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 	"time"
 )
@@ -33,29 +31,29 @@ type JournalStatus string
 
 func (j *Journal) generate(builder *strings.Builder) error {
 	if !j.valid() {
-		return errors.New("invalid journal entry")
+		return ErrInvalidJournal
 	}
-	builder.WriteString("BEGIN:VJOURNAL" + lineBreak)
+	builder.WriteString(beginJournal + lineBreak)
 
-	builder.WriteString("UID:" + j.uid() + lineBreak)
-	builder.WriteString("DTSTAMP:" + timeToICal(time.Now().UTC()) + lineBreak)
+	builder.WriteString(uid + j.uid() + lineBreak)
+	builder.WriteString(timestamp + timeToICal(time.Now().UTC()) + lineBreak)
 
 	if j.StartDate != nil {
 		builder.WriteString("DTSTART;VALUE=DATE:" + j.StartDate.Format("20060102") + lineBreak)
 	}
 
-	builder.WriteString("SUMMARY:" + j.Summary + lineBreak)
-	builder.WriteString("DESCRIPTION:" + cleanDescription(j.Description) + lineBreak)
+	builder.WriteString(summary + j.Summary + lineBreak)
+	builder.WriteString(description + cleanDescription(j.Description) + lineBreak)
 
 	if j.Organizer.Email != "" {
-		builder.WriteString("ORGANIZER;CN=" + j.Organizer.Name + ":mailto:" + j.Organizer.Email + lineBreak)
+		builder.WriteString(organizer + j.Organizer.Name + mailto + j.Organizer.Email + lineBreak)
 	}
 
 	if j.Status != "" {
-		builder.WriteString("STATUS:" + string(j.Status) + lineBreak)
+		builder.WriteString(status + string(j.Status) + lineBreak)
 	}
 
-	builder.WriteString("END:VJOURNAL" + lineBreak)
+	builder.WriteString(endJournal + lineBreak)
 	return nil
 }
 
@@ -76,7 +74,7 @@ func (j *Journal) valid() bool {
 }
 
 func (j *Journal) uid() string {
-	return fmt.Sprintf("%s-%d@iCal.go", strings.ReplaceAll(j.Summary, " ", "_"), time.Now().Unix())
+	return generateUid("%s-%d", strings.ReplaceAll(j.Summary, " ", "_"), time.Now().Unix())
 }
 
 const (

@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	lineBreak      = "\r\n"
 	iCalTimeLayout = "20060102T150405"
 )
 
@@ -79,12 +78,11 @@ func (c *Calendar) Generate() ([]byte, error) {
 	}
 
 	var builder strings.Builder
-	builder.WriteString("BEGIN:VCALENDAR" + lineBreak)
-	builder.WriteString("VERSION:2.0" + lineBreak)
-	builder.WriteString("PRODID:-//TylerChristensen100//iCal_Generator//EN" + lineBreak)
-	builder.WriteString("CALSCALE:GREGORIAN" + lineBreak)
-	builder.WriteString("METHOD:PUBLISH" + lineBreak)
-
+	builder.WriteString(beginCalendar + lineBreak)
+	builder.WriteString(iCalVersion + lineBreak)
+	builder.WriteString(prodID + lineBreak)
+	builder.WriteString(scale + lineBreak)
+	builder.WriteString(method + lineBreak)
 	c.generateTimeZones(&builder)
 
 	for _, event := range c.Events {
@@ -108,7 +106,7 @@ func (c *Calendar) Generate() ([]byte, error) {
 		}
 	}
 
-	builder.WriteString("END:VCALENDAR" + lineBreak)
+	builder.WriteString(endCalendar + lineBreak)
 	return []byte(builder.String()), nil
 }
 

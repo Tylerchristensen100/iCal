@@ -55,20 +55,21 @@ func TestGenerateJournal(t *testing.T) {
 	if builder.Len() == 0 {
 		t.Errorf("Generated journal is empty")
 	}
+	result := builder.String()
 
-	if !strings.Contains(builder.String(), "BEGIN:VJOURNAL") {
+	if !strings.Contains(result, "BEGIN:VJOURNAL") {
 		t.Errorf("Generated journal missing BEGIN:VJOURNAL")
 	}
 
-	if !strings.Contains(builder.String(), "END:VJOURNAL") {
+	if !strings.Contains(result, "END:VJOURNAL") {
 		t.Errorf("Generated journal missing END:VJOURNAL")
 	}
 
-	if !strings.Contains(builder.String(), "SUMMARY:Test Journal Entry") {
+	if !strings.Contains(result, "SUMMARY:Test Journal Entry") {
 		t.Errorf("Generated journal missing SUMMARY")
 	}
 
-	if !strings.Contains(builder.String(), "ORGANIZER;CN=Test:mailto:test@example.com") {
+	if !strings.Contains(result, "ORGANIZER;CN=Test:mailto:test@example.com") {
 		t.Errorf("Generated journal missing ORGANIZER")
 	}
 }

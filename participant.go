@@ -17,7 +17,7 @@ func (p *Participant) generate(builder *strings.Builder) error {
 	if !p.valid() {
 		return ErrInvalidEmail
 	}
-	builder.WriteString(fmt.Sprintf("ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=%s;X-NUM-GUESTS=0:mailto:%s", p.Name, p.Email) + lineBreak)
+	builder.WriteString(fmt.Sprintf(attendee, p.Name, p.Email) + lineBreak)
 	return nil
 }
 
@@ -25,7 +25,7 @@ func (p *Participant) generateOrganizer(builder *strings.Builder) error {
 	if !p.valid() {
 		return ErrInvalidEmail
 	}
-	builder.WriteString(fmt.Sprintf("ORGANIZER;CN=%s:mailto:%s", p.Name, p.Email) + lineBreak)
+	builder.WriteString(organizer + p.Name + mailto + p.Email + lineBreak)
 	return nil
 }
 

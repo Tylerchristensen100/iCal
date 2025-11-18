@@ -70,21 +70,21 @@ func (r *Reminder) generate(builder *strings.Builder) error {
 	if !r.valid() {
 		return ErrInvalidReminder
 	}
-	builder.WriteString("BEGIN:VALARM\r\n")
-	builder.WriteString("ACTION:" + string(r.Action) + "\r\n")
-	builder.WriteString("DESCRIPTION:" + cleanDescription(r.Description) + "\r\n")
-	builder.WriteString("TRIGGER:" + formatDurationAsTrigger(r.Trigger) + "\r\n")
+	builder.WriteString(beginAlarm + lineBreak)
+	builder.WriteString(action + string(r.Action) + lineBreak)
+	builder.WriteString(description + cleanDescription(r.Description) + lineBreak)
+	builder.WriteString(trigger + formatDurationAsTrigger(r.Trigger) + lineBreak)
 	if r.Repeat != nil {
-		builder.WriteString("REPEAT:" + fmt.Sprintf("%d", *r.Repeat) + "\r\n")
+		builder.WriteString(repeat + fmt.Sprintf("%d", *r.Repeat) + lineBreak)
 		// Assuming a fixed DURATION of 15 minutes for each repeat for simplicity
-		builder.WriteString("DURATION:PT15M\r\n")
+		builder.WriteString(duration + "PT15M" + lineBreak)
 	}
 	if r.Action == EmailReminderAction && len(r.Attendees) > 0 {
-		for _, attendee := range r.Attendees {
-			builder.WriteString("ATTENDEE;CN=" + attendee.Name + ":MAILTO:" + attendee.Email + "\r\n")
+		for _, a := range r.Attendees {
+			builder.WriteString(fmt.Sprintf(attendee, a.Name, a.Email) + lineBreak)
 		}
 	}
-	builder.WriteString("END:VALARM\r\n")
+	builder.WriteString(endAlarm + lineBreak)
 	return nil
 }
 
