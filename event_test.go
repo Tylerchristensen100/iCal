@@ -235,6 +235,27 @@ func TestConflictWithRecurringEvent(t *testing.T) {
 	}
 }
 
+func TestGenerateUID(t *testing.T) {
+	var tests = []struct {
+		pattern           string
+		args              []interface{}
+		expectedSubstring string
+	}{
+		{"%s-%d", []interface{}{"Test_Event", int64(1234567890)}, "Test_Event-1234567890@iCal.go"},
+		{"event-%s-%d", []interface{}{"Test_Event", int64(9876543210)}, "event-Test_Event-9876543210@iCal.go"},
+		{"%s_%d_uid", []interface{}{"Test_Event", int64(5555555555)}, "Test_Event_5555555555_uid@iCal.go"},
+		{"%s-%d_with_addition_%s", []interface{}{"Test_Event", int64(0), "addition"}, "Test_Event-0_with_addition_addition@iCal.go"},
+	}
+
+	for _, tt := range tests {
+		uid := generateUid(tt.pattern, tt.args...)
+		if !strings.Contains(uid, tt.expectedSubstring) {
+			t.Errorf("Expected UID to contain %s, got %s", tt.expectedSubstring, uid)
+		}
+	}
+
+}
+
 func mockEvent() Event {
 	startDate := time.Date(2025, time.November, 17, 9, 0, 0, 0, time.UTC)
 	return Event{

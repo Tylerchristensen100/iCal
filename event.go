@@ -57,29 +57,29 @@ func (e *Event) Generate() (string, error) {
 				return "", err
 			}
 
-			builder.WriteString("BEGIN:VEVENT" + lineBreak)
-			builder.WriteString("UID:" + rec.uid() + lineBreak)
+			builder.WriteString(beginEvent + lineBreak)
+			builder.WriteString(uid + rec.uid() + lineBreak)
 			builder.WriteString(recRule + lineBreak)
 			err = e.buildEventDetails(&builder)
 			if err != nil {
 				return "", err
 			}
 
-			builder.WriteString("END:VEVENT" + lineBreak)
+			builder.WriteString(endEvent + lineBreak)
 		}
 	} else {
 		// Non-recurring
-		builder.WriteString("BEGIN:VEVENT" + lineBreak)
-		builder.WriteString("UID:" + e.uid() + lineBreak)
+		builder.WriteString(beginEvent + lineBreak)
+		builder.WriteString(uid + e.uid() + lineBreak)
 
-		builder.WriteString(fmt.Sprintf("DTSTART;TZID=%s:%s", e.TimeZone.ID(), timeToICal(e.StartDate)) + lineBreak)
-		builder.WriteString(fmt.Sprintf("DTEND;TZID=%s:%s", e.TimeZone.ID(), timeToICal(e.EndDate)) + lineBreak)
+		builder.WriteString(fmt.Sprintf(eventStart+timezoneId+"%s:%s", e.TimeZone.ID(), timeToICal(e.StartDate)) + lineBreak)
+		builder.WriteString(fmt.Sprintf(eventEnd+timezoneId+"%s:%s", e.TimeZone.ID(), timeToICal(e.EndDate)) + lineBreak)
 		err := e.buildEventDetails(&builder)
 		if err != nil {
 			return "", err
 		}
 
-		builder.WriteString("END:VEVENT" + lineBreak)
+		builder.WriteString(endEvent + lineBreak)
 	}
 
 	return builder.String(), nil
@@ -133,7 +133,7 @@ func (e *Event) AddReminder(reminder Reminder) error {
 }
 
 func (e *Event) uid() string {
-	return fmt.Sprintf("%s-%s-%s@iCal.go", strings.ReplaceAll(e.Title, " ", "_"),
+	return generateUid("%s-%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
 		e.StartDate.Weekday(), e.EndDate.Weekday())
 }
 
@@ -281,4 +281,8 @@ func (e *Event) Valid() bool {
 	}
 
 	return true
+}
+
+func generateUid(format string, a ...any) string {
+	return fmt.Sprintf(format+"@iCal.go", a...)
 }
