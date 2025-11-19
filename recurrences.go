@@ -73,7 +73,7 @@ func (r *Recurrences) Valid() bool {
 }
 
 func (r *Recurrences) uid() string {
-	return fmt.Sprintf("%s-%s-%s@iCal.go", r.Frequency,
+	return generateUid("%s-%s-%s", r.Frequency,
 		r.StartTime.UTC().Format("15_04"), r.EndTime.UTC().Format("15_04"))
 }
 func (r *Recurrences) ConflictsWith(other Recurrences) (bool, time.Time) {

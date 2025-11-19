@@ -1,6 +1,7 @@
 package ical
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -220,9 +221,13 @@ func TestWeekdayToICal(t *testing.T) {
 }
 
 func TestRecurrenceUID(t *testing.T) {
+	regUid := regexp.MustCompile(`^([^\n]*?)-\d+@iCal\.go`)
+	expectedUID := "WEEKLY-09_00-10_00-<unique>@iCal.go"
+
 	rec := mockRecurrence()
-	expectedUID := "WEEKLY-09_00-10_00@iCal.go"
-	if rec.uid() != expectedUID {
+	uid := rec.uid()
+	uid = regUid.ReplaceAllString(uid, "$1-<unique>@iCal.go")
+	if uid != expectedUID {
 		t.Errorf("Expected UID %s, got %s", expectedUID, rec.uid())
 	}
 }
