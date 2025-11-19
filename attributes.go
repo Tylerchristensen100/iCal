@@ -50,4 +50,10 @@ const (
 
 	// TimeZone
 	timezoneId = "TZID="
+
+	// Recurrence
+	rRule = "RRULE:"
+	freq  = "FREQ=%s;"
+	byDay = "BYDAY=%s;"
+	until = "UNTIL=%sZ;"
 )

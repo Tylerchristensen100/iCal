@@ -123,7 +123,7 @@ func (t *Todo) valid() bool {
 }
 
 func (t *Todo) uid() string {
-	return generateUid("%s-%d", strings.ReplaceAll(t.Summary, " ", "_"), time.Now().Unix())
+	return generateUid("%s", strings.ReplaceAll(t.Summary, " ", "_"))
 }
 
 type TodoStatus string

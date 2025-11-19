@@ -214,5 +214,20 @@ func validWeekday(d time.Weekday) bool {
 }
 
 func generateRRULE(f Frequency, d time.Weekday, endTime time.Time) string {
-	return fmt.Sprintf("RRULE:FREQ=%s;BYDAY=%s;UNTIL=%s;"+lineBreak, f, weekdayToICal(d), fmt.Sprintf("%sZ", timeToICal(endTime.UTC())))
+	var builder strings.Builder
+	interval := 1
+	if f == BiWeeklyFrequency {
+		interval = 2
+		f = WeeklyFrequency
+	}
+
+	builder.WriteString(rRule)
+	builder.WriteString(fmt.Sprintf(freq, f))
+	builder.WriteString(fmt.Sprintf(byDay, weekdayToICal(d)))
+	if interval > 1 {
+		builder.WriteString(fmt.Sprintf("INTERVAL=%d;", interval))
+	}
+	builder.WriteString(fmt.Sprintf(until, timeToICal(endTime.UTC())))
+
+	return builder.String()
 }

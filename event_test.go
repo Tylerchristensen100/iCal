@@ -1,6 +1,7 @@
 package ical
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -101,9 +102,13 @@ func TestAddReminder(t *testing.T) {
 
 func TestEventUID(t *testing.T) {
 	event := mockEvent()
-	expectedUID := "Test_Event-Monday-Monday@iCal.go"
-	if event.uid() != expectedUID {
-		t.Errorf("Expected UID %s, got %s", expectedUID, event.uid())
+	expectedUID := "Test_Event-Monday-Monday-<unique>@iCal.go"
+	reg := regexp.MustCompile(`-(\d+)@iCal\.go$`)
+
+	uid := event.uid()
+	uid = reg.ReplaceAllString(uid, "-<unique>@iCal.go") // Remove unique part for testing
+	if uid != expectedUID {
+		t.Errorf("Expected UID %s, got %s", expectedUID, uid)
 	}
 }
 
@@ -241,14 +246,17 @@ func TestGenerateUID(t *testing.T) {
 		args              []interface{}
 		expectedSubstring string
 	}{
-		{"%s-%d", []interface{}{"Test_Event", int64(1234567890)}, "Test_Event-1234567890@iCal.go"},
-		{"event-%s-%d", []interface{}{"Test_Event", int64(9876543210)}, "event-Test_Event-9876543210@iCal.go"},
-		{"%s_%d_uid", []interface{}{"Test_Event", int64(5555555555)}, "Test_Event_5555555555_uid@iCal.go"},
-		{"%s-%d_with_addition_%s", []interface{}{"Test_Event", int64(0), "addition"}, "Test_Event-0_with_addition_addition@iCal.go"},
+		{"%s-%d", []interface{}{"Test_Event", int64(1234567890)}, "Test_Event-1234567890-<unique>@iCal.go"},
+		{"event-%s-%d", []interface{}{"Test_Event", int64(9876543210)}, "event-Test_Event-9876543210-<unique>@iCal.go"},
+		{"%s_%d_uid", []interface{}{"Test_Event", int64(5555555555)}, "Test_Event_5555555555_uid-<unique>@iCal.go"},
+		{"%s-%d_with_addition_%s", []interface{}{"Test_Event", int64(0), "addition"}, "Test_Event-0_with_addition_addition-<unique>@iCal.go"},
 	}
+
+	reg := regexp.MustCompile(`-(\d+)@iCal\.go$`)
 
 	for _, tt := range tests {
 		uid := generateUid(tt.pattern, tt.args...)
+		uid = reg.ReplaceAllString(uid, "-<unique>@iCal.go") // Remove unique part for testing
 		if !strings.Contains(uid, tt.expectedSubstring) {
 			t.Errorf("Expected UID to contain %s, got %s", tt.expectedSubstring, uid)
 		}

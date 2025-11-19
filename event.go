@@ -2,6 +2,7 @@ package ical
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -284,5 +285,9 @@ func (e *Event) Valid() bool {
 }
 
 func generateUid(format string, a ...any) string {
-	return fmt.Sprintf(format+"@iCal.go", a...)
+	// Adding a random component to ensure uniqueness
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	unique := r.Int63()
+	end := fmt.Sprintf("-%d@iCal.go", unique)
+	return fmt.Sprintf(format+end, a...)
 }

@@ -30,8 +30,11 @@ func ExampleCalendar_AddEvent() {
 
 	// Remove the generated attributes for consistent output
 	re := regexp.MustCompile(`DTSTAMP:\d{8}T\d{6}Z\n?`)
+	regUid := regexp.MustCompile(`(UID:[^\n]*?)-\d+@iCal\.go`)
 	// Generated value at generation time, replace with fixed value
 	validOutput := re.ReplaceAllString(string(output), "DTSTAMP:20251114T212240Z")
+	// Remove the random unique int in the UID for testing
+	validOutput = regUid.ReplaceAllString(validOutput, "$1-<unique>@iCal.go")
 	// Normalize line endings for consistent output across platforms
 	validOutput = strings.ReplaceAll(validOutput, "\r\n", "\n")
 	// END the removal of generated attributes
@@ -54,7 +57,7 @@ func ExampleCalendar_AddEvent() {
 	// END:STANDARD
 	// END:VTIMEZONE
 	// BEGIN:VEVENT
-	// UID:Meeting_with_Bob-Monday-Monday@iCal.go
+	// UID:Meeting_with_Bob-Monday-Monday-<unique>@iCal.go
 	// DTSTART;TZID=UTC:20240701T100000
 	// DTEND;TZID=UTC:20240701T110000
 	// DTSTAMP:20251114T212240Z
@@ -85,10 +88,10 @@ func ExampleCalendar_AddTodo() {
 
 	// Remove the generated attributes for consistent output
 	regDTSTAMP := regexp.MustCompile(`DTSTAMP:\d{8}T\d{6}\n?`)
-	regUID := regexp.MustCompile(`UID:[^\n]+\n?`)
+	regUid := regexp.MustCompile(`(UID:[^\n]*?)-\d+@iCal\.go`)
 	// Generated value at generation time, replace with fixed value
 	validOutput := regDTSTAMP.ReplaceAllString(string(output), "DTSTAMP:20251114T212240Z")
-	validOutput = regUID.ReplaceAllString(validOutput, "UID:Finish_Report-1763158003@iCal.go\n")
+	validOutput = regUid.ReplaceAllString(validOutput, "$1-<unique>@iCal.go")
 	// Normalize line endings for consistent output across platforms
 	validOutput = strings.ReplaceAll(validOutput, "\r\n", "\n")
 	// END the removal of generated attributes
@@ -101,7 +104,7 @@ func ExampleCalendar_AddTodo() {
 	// CALSCALE:GREGORIAN
 	// METHOD:PUBLISH
 	// BEGIN:VTODO
-	// UID:Finish_Report-1763158003@iCal.go
+	// UID:Finish_Report-<unique>@iCal.go
 	// DTSTAMP:20251114T212240Z
 	// SUMMARY:Finish Report
 	// STATUS:IN-PROCESS

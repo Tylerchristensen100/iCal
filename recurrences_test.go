@@ -180,13 +180,13 @@ func TestGenerateRRule(t *testing.T) {
 			f:        WeeklyFrequency,
 			weekday:  time.Monday,
 			endTime:  time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC),
-			expected: "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20241231T000000Z;\r\n",
+			expected: "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20241231T000000Z;",
 		},
 		{
 			f:        DailyFrequency,
 			weekday:  time.Sunday,
 			endTime:  time.Date(2025, 1, 15, 0, 0, 0, 0, time.UTC),
-			expected: "RRULE:FREQ=DAILY;BYDAY=SU;UNTIL=20250115T000000Z;\r\n",
+			expected: "RRULE:FREQ=DAILY;BYDAY=SU;UNTIL=20250115T000000Z;",
 		},
 	}
 
