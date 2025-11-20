@@ -2,7 +2,7 @@ package ical
 
 import "strings"
 
-func cleanDescription(desc string) string {
+func foldText(desc string) string {
 	// Truncate description to 75 characters (including 'DESCRIPTION:' prefix)
 	// https://icalendar.org/iCalendar-RFC-5545/3-1-content-lines.html
 	//

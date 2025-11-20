@@ -5,16 +5,16 @@ import (
 	"testing"
 )
 
-func TestCleanDescription(t *testing.T) {
+func TestfoldText(t *testing.T) {
 	rawDescription := "This is a test description with especially long content, and a lot of words and special characters."
-	cleanedDescription := cleanDescription(rawDescription)
+	cleanedDescription := foldText(rawDescription)
 	expectedDescription := "This is a test description with especially long content, and a \r\n lot of words and special characters."
 	if cleanedDescription != expectedDescription {
 		t.Errorf("Expected cleaned description to be:\n%s\nGot:\n%s", expectedDescription, cleanedDescription)
 	}
 
 	clean := "Short description."
-	cleaned := cleanDescription(clean)
+	cleaned := foldText(clean)
 	if cleaned != clean {
 		t.Errorf("Expected cleaned description to be unchanged:\n%s\nGot:\n%s", clean, cleaned)
 	}

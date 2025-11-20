@@ -70,7 +70,7 @@ func (t *Todo) generate(builder *strings.Builder) error {
 		builder.WriteString(fmt.Sprintf(percentComplete+"%d%s", *t.PercentComplete, lineBreak))
 	}
 	if t.Description != "" {
-		d := cleanDescription(t.Description)
+		d := foldText(t.Description)
 		builder.WriteString(description + d + lineBreak)
 	}
 	if t.StartDate != nil {

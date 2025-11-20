@@ -163,7 +163,7 @@ func (e *Event) buildEventDetails(builder *strings.Builder) error {
 	}
 
 	if e.Description != "" {
-		description := cleanDescription(e.Description)
+		description := foldText(e.Description)
 		builder.WriteString("DESCRIPTION:" + description + lineBreak)
 	}
 	for _, attendee := range e.Attendees {

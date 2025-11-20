@@ -43,7 +43,7 @@ func (j *Journal) generate(builder *strings.Builder) error {
 	}
 
 	builder.WriteString(summary + j.Summary + lineBreak)
-	builder.WriteString(description + cleanDescription(j.Description) + lineBreak)
+	builder.WriteString(description + foldText(j.Description) + lineBreak)
 
 	if j.Organizer.Email != "" {
 		builder.WriteString(organizer + j.Organizer.Name + mailto + j.Organizer.Email + lineBreak)
