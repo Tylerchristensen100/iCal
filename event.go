@@ -9,6 +9,10 @@ import (
 
 // iCalendar VEVENT component
 type Event struct {
+	// OPTIONAL: Unique identifier for the event
+	// If not provided, it will be auto-generated
+	UID string
+
 	// REQUIRED: Title of the event
 	Title string
 
@@ -59,7 +63,11 @@ func (e *Event) Generate() (string, error) {
 			}
 
 			builder.WriteString(beginEvent + lineBreak)
-			builder.WriteString(uid + rec.uid() + lineBreak)
+			if e.UID != "" {
+				builder.WriteString(uid + e.UID + rec.uid() + lineBreak)
+			} else {
+				builder.WriteString(uid + rec.uid() + lineBreak)
+			}
 			builder.WriteString(recRule + lineBreak)
 			err = e.buildEventDetails(&builder)
 			if err != nil {
@@ -134,6 +142,10 @@ func (e *Event) AddReminder(reminder Reminder) error {
 }
 
 func (e *Event) uid() string {
+	if e.UID != "" {
+		return e.UID
+	}
+
 	return generateUid("%s-%s-%s", strings.ReplaceAll(e.Title, " ", "_"),
 		e.StartDate.Weekday(), e.EndDate.Weekday())
 }

@@ -57,6 +57,30 @@ func TestHasRecurrences(t *testing.T) {
 	}
 }
 
+func TestUidGeneration(t *testing.T) {
+	event := Event{
+		Title:     "UID Test Event",
+		StartDate: time.Now(),
+		EndDate:   time.Now().Add(1 * time.Hour),
+		TimeZone:  TimeZone(timezones.US_Eastern),
+		UID:       "5555",
+	}
+	s, err := event.Generate()
+	if err != nil {
+		t.Errorf("Generate() returned error: %v", err)
+	}
+	re := regexp.MustCompile(`UID:([^\n]*)`)
+	matches := re.FindStringSubmatch(s)
+	if len(matches) < 2 {
+		t.Errorf("Generated iCal event string is missing UID field")
+	} else {
+		uid := matches[1]
+		if !strings.HasPrefix(uid, "5555") {
+			t.Errorf("Expected UID to start with '5555', got %s", uid)
+		}
+	}
+}
+
 func TestAddReminder(t *testing.T) {
 	event := mockEvent()
 	var tests = []struct {

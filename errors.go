@@ -3,16 +3,17 @@ package ical
 import "fmt"
 
 const (
-	errInvalidEventMessage      = "invalid event"
-	errInvalidRecurrenceMessage = "invalid recurrence"
-	errInvalidDayOfWeekMessage  = "invalid day of week"
-	errNoConflictFoundMessage   = "no conflict found for the specified date"
-	errNoRecurrenceFoundMessage = "no recurrence found for the specified day"
-	errInvalidEmailMessage      = "invalid email format"
-	errInvalidReminderMessage   = "invalid reminder"
-	errInvalidJournalMessage    = "invalid journal entry"
-	errInvalidTodoMessage       = "invalid todo component"
-	errInvalidCalendarMessage   = "invalid calendar"
+	errInvalidEventMessage       = "invalid event"
+	errInvalidRecurrenceMessage  = "invalid recurrence"
+	errInvalidDayOfWeekMessage   = "invalid day of week"
+	errNoConflictFoundMessage    = "no conflict found for the specified date"
+	errNoRecurrenceFoundMessage  = "no recurrence found for the specified day"
+	errInvalidEmailMessage       = "invalid email format"
+	errInvalidReminderMessage    = "invalid reminder"
+	errInvalidJournalMessage     = "invalid journal entry"
+	errInvalidTodoMessage        = "invalid todo component"
+	errInvalidCalendarMessage    = "invalid calendar"
+	errEventUIDsNotUniqueMessage = "event UIDs must be unique"
 )
 
 var (
@@ -45,6 +46,9 @@ var (
 
 	// ErrInvalidCalendar is returned when a calendar is not valid.
 	ErrInvalidCalendar = fmt.Errorf(errInvalidCalendarMessage)
+
+	// ErrEventUIDsNotUnique is returned when event UIDs are not unique.
+	ErrEventUIDsNotUnique = fmt.Errorf(errEventUIDsNotUniqueMessage)
 )
 
 // ErrEndTimeBeforeStartTime is returned when the end time is before the start time.

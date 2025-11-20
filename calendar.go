@@ -33,6 +33,16 @@ func (c *Calendar) AddEvent(e Event) error {
 	if !e.Valid() {
 		return ErrInvalidEvent
 	}
+	if e.UID == "" {
+		e.UID = e.uid()
+	} else {
+		for _, existingEvent := range c.Events {
+			if existingEvent.UID == e.UID {
+				return ErrEventUIDsNotUnique
+			}
+		}
+	}
+
 	c.Events = append(c.Events, e)
 	return nil
 }
@@ -73,8 +83,9 @@ func (c *Calendar) Save(path string) error {
 
 // Generate creates the iCal formatted string for the entire calendar.
 func (c *Calendar) Generate() ([]byte, error) {
-	if !c.Valid() {
-		return nil, ErrInvalidCalendar
+	err := c.Valid()
+	if err != nil {
+		return nil, err
 	}
 
 	var builder strings.Builder
@@ -123,31 +134,36 @@ func (c *Calendar) generateTimeZones(builder *strings.Builder) {
 	}
 }
 
-func (c *Calendar) Valid() bool {
+func (c *Calendar) Valid() error {
 	if c.Name == "" {
-		return false
+		return ErrInvalidCalendar
 	}
+	var uids = make(map[string]bool)
 	for _, event := range c.Events {
 		if !event.Valid() {
-			return false
+			return ErrInvalidEvent
 		}
+		if _, exists := uids[event.UID]; exists {
+			return ErrEventUIDsNotUnique
+		}
+		uids[event.UID] = true
 	}
 	for _, journal := range c.Journals {
 		if !journal.valid() {
-			return false
+			return ErrInvalidJournal
 		}
 	}
 	for _, todo := range c.Todos {
 		if !todo.valid() {
-			return false
+			return ErrInvalidTodo
 		}
 	}
 
 	// If there is nothing in the calendar, it's invalid
 	if len(c.Events) == 0 && len(c.Journals) == 0 && len(c.Todos) == 0 {
-		return false
+		return ErrInvalidCalendar
 	}
-	return true
+	return nil
 }
 
 // ListConflicts returns a list of events that have scheduling conflicts with other events in the calendar.
