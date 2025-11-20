@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestfoldText(t *testing.T) {
+func TestFoldText(t *testing.T) {
 	rawDescription := "This is a test description with especially long content, and a lot of words and special characters."
 	cleanedDescription := foldText(rawDescription)
 	expectedDescription := "This is a test description with especially long content, and a \r\n lot of words and special characters."
