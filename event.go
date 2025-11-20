@@ -44,6 +44,10 @@ type Event struct {
 
 	// OPTIONAL: List of reminders for the event
 	Reminders []Reminder
+
+	// OPTIONAL: Image associated with the event
+	// Can be a URL or Base64 encoded string
+	Image *Image
 }
 
 // Generate creates the iCal formatted string for the event.
@@ -157,6 +161,12 @@ func (e *Event) buildEventDetails(builder *strings.Builder) error {
 
 	if e.Organizer != nil {
 		err := e.Organizer.generateOrganizer(builder)
+		if err != nil {
+			return err
+		}
+	}
+	if e.Image != nil {
+		err := e.Image.generate(builder)
 		if err != nil {
 			return err
 		}
@@ -294,6 +304,16 @@ func (e *Event) Valid() bool {
 	}
 
 	return true
+}
+
+func (e *Event) AddImage(img Image) error {
+	err := img.valid()
+	if err != nil {
+		return err
+	}
+
+	e.Image = &img
+	return nil
 }
 
 func generateUid(format string, a ...any) string {

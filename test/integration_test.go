@@ -44,6 +44,10 @@ func TestIntegration(t *testing.T) {
 			Exceptions: []time.Time{time.Date(2025, 12, 3, 14, 0, 0, 0, time.UTC)},
 		},
 		},
+		Image: &ical.Image{
+			URL:      "https://pkg.go.dev/static/shared/logo/go-blue.svg",
+			MIMEType: "image/svg+xml",
+		},
 		TimeZone: timezone,
 	})
 	if err != nil {

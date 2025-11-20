@@ -288,6 +288,21 @@ func TestGenerateUID(t *testing.T) {
 
 }
 
+func TestAddImageToEvent(t *testing.T) {
+	event := mockEvent()
+	img := mockImage()
+	err := event.AddImage(*img)
+	if err != nil {
+		t.Errorf("AddImage() returned error: %v", err)
+	}
+	if event.Image == nil {
+		t.Errorf("Expected event to have an image, but Image is nil")
+	}
+	if event.Image.URL != img.URL || event.Image.MIMEType != img.MIMEType {
+		t.Errorf("Image not set correctly. Got: %+v, want: %+v", event.Image, img)
+	}
+}
+
 func mockEvent() Event {
 	startDate := time.Date(2025, time.November, 17, 9, 0, 0, 0, time.UTC)
 	return Event{
