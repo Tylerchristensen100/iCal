@@ -62,7 +62,6 @@ func ExampleCalendar_AddEvent() {
 	// DTEND;TZID=UTC:20240701T110000
 	// DTSTAMP:20251114T212240Z
 	// SUMMARY:Meeting with Bob
-	// LOCATION:
 	// ORGANIZER;CN=Organizer:mailto:example@github.com
 	// END:VEVENT
 	// END:VCALENDAR

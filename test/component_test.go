@@ -9,7 +9,6 @@ import (
 	"github.com/Tylerchristensen100/iCal/timezones"
 )
 
-// Test TODO, JOURNAL, VTIMEZONE, ALARM, EVENT components
 func TestValidComponents(t *testing.T) {
 	cal := ical.Create("Test Calendar", "This is a test calendar.")
 
@@ -37,6 +36,7 @@ func TestValidComponents(t *testing.T) {
 		StartDate:   time.Date(2024, 8, 1, 10, 0, 0, 0, time.UTC),
 		EndDate:     time.Date(2024, 8, 1, 11, 0, 0, 0, time.UTC),
 		TimeZone:    ical.TimeZone(timezones.US_Mountain),
+		URL:         "https://example.com/event",
 	}
 
 	event.AddReminder(
@@ -58,6 +58,10 @@ func TestValidComponents(t *testing.T) {
 
 	if len(data) == 0 {
 		t.Errorf("Generated calendar data is empty")
+	}
+
+	if !strings.Contains(string(data), "URL:https://example.com/event") {
+		t.Errorf("Generated calendar missing URL in VEVENT component")
 	}
 
 	if !strings.Contains(string(data), "BEGIN:VJOURNAL") {

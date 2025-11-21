@@ -57,6 +57,30 @@ func TestHasRecurrences(t *testing.T) {
 	}
 }
 
+func TestUidGeneration(t *testing.T) {
+	event := Event{
+		Title:     "UID Test Event",
+		StartDate: time.Now(),
+		EndDate:   time.Now().Add(1 * time.Hour),
+		TimeZone:  TimeZone(timezones.US_Eastern),
+		UID:       "5555",
+	}
+	s, err := event.Generate()
+	if err != nil {
+		t.Errorf("Generate() returned error: %v", err)
+	}
+	re := regexp.MustCompile(`UID:([^\n]*)`)
+	matches := re.FindStringSubmatch(s)
+	if len(matches) < 2 {
+		t.Errorf("Generated iCal event string is missing UID field")
+	} else {
+		uid := matches[1]
+		if !strings.HasPrefix(uid, "5555") {
+			t.Errorf("Expected UID to start with '5555', got %s", uid)
+		}
+	}
+}
+
 func TestAddReminder(t *testing.T) {
 	event := mockEvent()
 	var tests = []struct {
@@ -264,6 +288,21 @@ func TestGenerateUID(t *testing.T) {
 
 }
 
+func TestAddImageToEvent(t *testing.T) {
+	event := mockEvent()
+	img := mockImage()
+	err := event.AddImage(*img)
+	if err != nil {
+		t.Errorf("AddImage() returned error: %v", err)
+	}
+	if event.Image == nil {
+		t.Errorf("Expected event to have an image, but Image is nil")
+	}
+	if event.Image.URL != img.URL || event.Image.MIMEType != img.MIMEType {
+		t.Errorf("Image not set correctly. Got: %+v, want: %+v", event.Image, img)
+	}
+}
+
 func mockEvent() Event {
 	startDate := time.Date(2025, time.November, 17, 9, 0, 0, 0, time.UTC)
 	return Event{
@@ -280,5 +319,6 @@ func mockEvent() Event {
 			},
 		},
 		Attendees: []Participant{{Name: "Test User", Email: "test@example.com"}},
+		URL:       "https://example.com/event",
 	}
 }

@@ -102,6 +102,7 @@ func TestCalendarWithMultipleOccurrences(t *testing.T) {
 		TimeZone:    ical.TimeZone(timezones.US_Mountain),
 		StartDate:   time.Now().Add(24 * time.Hour),
 		EndDate:     time.Now().Add(25 * time.Hour),
+		URL:         "https://example.com/single-event",
 	})
 	if err != nil {
 		t.Fatalf("Failed to add single event: %v", err)
@@ -166,5 +167,41 @@ func TestCalendarWithMultipleOccurrences(t *testing.T) {
 	calSuffix := string(data[len(data)-len(expectedEnd):])
 	if calSuffix != expectedEnd {
 		t.Errorf("Expected calendar to end with '%s', got '%s'", expectedEnd, calSuffix)
+	}
+}
+
+func TestCalendarWithImage(t *testing.T) {
+	cal := ical.Create("Image Calendar", "Calendar with event image.")
+	image := ical.ImageFromURL("https://pkg.go.dev/static/shared/logo/go-blue.svg")
+	err := cal.AddEvent(ical.Event{
+		Title:       "Event with Image",
+		Description: "This event has an associated image.",
+		StartDate:   time.Date(2024, 9, 15, 10, 0, 0, 0, time.UTC),
+		EndDate:     time.Date(2024, 9, 15, 11, 0, 0, 0, time.UTC),
+		TimeZone:    ical.TimeZone(timezones.US_Pacific),
+		Image:       image,
+	})
+	if err != nil {
+		t.Fatalf("Failed to add event with image: %v", err)
+	}
+
+	data, err := cal.Generate()
+	if err != nil {
+		t.Fatalf("Failed to generate calendar: %v", err)
+	}
+
+	if len(data) == 0 {
+		t.Errorf("Generated calendar data is empty")
+	}
+
+	expectedImageString := "IMAGE;VALUE=URI;DISPLAY=BADGE;FMTTYPE=image/svg+xml:https://pkg.go.dev/static/shared/logo/go-blue.svg"
+	if !strings.Contains(string(data), expectedImageString) {
+		print(string(data))
+		t.Errorf("Generated calendar data does not contain expected image string")
+	}
+
+	err = cal.Save(fmt.Sprintf("./tmp/image_calendar_output%s.ics", time.Now().Format("20060102150405")))
+	if err != nil {
+		t.Fatalf("Failed to save calendar: %v", err)
 	}
 }

@@ -118,6 +118,76 @@ func TestSave(t *testing.T) {
 	})
 }
 
+func TestAddMultipleEventsWithUIDs(t *testing.T) {
+	var tests = []struct {
+		events  []Event
+		success bool
+	}{
+		{
+			[]Event{
+				{UID: "event-1", Title: "Event 1", StartDate: time.Now(), EndDate: time.Now().Add(1 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+				{UID: "event-2", Title: "Event 2", StartDate: time.Now().Add(2 * time.Hour), EndDate: time.Now().Add(3 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+			}, true,
+		},
+		{
+			[]Event{
+				{UID: "event-1", Title: "Event 1", StartDate: time.Now(), EndDate: time.Now().Add(1 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+				{UID: "event-1", Title: "Event 2", StartDate: time.Now().Add(2 * time.Hour), EndDate: time.Now().Add(3 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+			}, false,
+		},
+	}
+	for _, tt := range tests {
+		cal := Create("Test Calendar", "A calendar for testing multiple events with UIDs")
+		var addErr error
+		for _, event := range tt.events {
+			err := cal.AddEvent(event)
+			if err != nil {
+				addErr = err
+				break
+			}
+		}
+		if (addErr == nil) != tt.success {
+			t.Errorf("AddEvent() success = %v, want %v", addErr == nil, tt.success)
+		}
+	}
+
+}
+
+func TestGenerateMultipleEventsWithUIDs(t *testing.T) {
+	var tests = []struct {
+		events  []Event
+		success bool
+	}{
+		{
+			[]Event{
+				{UID: "event-1", Title: "Event 1", StartDate: time.Now(), EndDate: time.Now().Add(1 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+				{UID: "event-2", Title: "Event 2", StartDate: time.Now().Add(2 * time.Hour), EndDate: time.Now().Add(3 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+			}, true,
+		},
+		{
+			[]Event{
+				{UID: "event-1", Title: "Event 1", StartDate: time.Now(), EndDate: time.Now().Add(1 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+				{UID: "event-1", Title: "Event 2", StartDate: time.Now().Add(2 * time.Hour), EndDate: time.Now().Add(3 * time.Hour), TimeZone: TimeZone(timezones.US_Eastern)},
+			}, false,
+		},
+	}
+	for _, tt := range tests {
+		cal := Create("Test Calendar", "A calendar for testing multiple events with UIDs")
+		var addErr error
+		for _, event := range tt.events {
+			cal.Events = append(cal.Events, event)
+		}
+		_, err := cal.Generate()
+		if err != nil {
+			addErr = err
+		}
+		if (addErr == nil) != tt.success {
+			t.Errorf("Generate() success = %v, want %v", addErr == nil, tt.success)
+		}
+	}
+
+}
+
 func TestListConflicts(t *testing.T) {
 	cal := mockCalendar()
 	conflicts := cal.ListConflicts()

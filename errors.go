@@ -3,16 +3,19 @@ package ical
 import "fmt"
 
 const (
-	errInvalidEventMessage      = "invalid event"
-	errInvalidRecurrenceMessage = "invalid recurrence"
-	errInvalidDayOfWeekMessage  = "invalid day of week"
-	errNoConflictFoundMessage   = "no conflict found for the specified date"
-	errNoRecurrenceFoundMessage = "no recurrence found for the specified day"
-	errInvalidEmailMessage      = "invalid email format"
-	errInvalidReminderMessage   = "invalid reminder"
-	errInvalidJournalMessage    = "invalid journal entry"
-	errInvalidTodoMessage       = "invalid todo component"
-	errInvalidCalendarMessage   = "invalid calendar"
+	errInvalidEventMessage        = "invalid event"
+	errInvalidRecurrenceMessage   = "invalid recurrence"
+	errInvalidDayOfWeekMessage    = "invalid day of week"
+	errNoConflictFoundMessage     = "no conflict found for the specified date"
+	errNoRecurrenceFoundMessage   = "no recurrence found for the specified day"
+	errInvalidEmailMessage        = "invalid email format"
+	errInvalidReminderMessage     = "invalid reminder"
+	errInvalidJournalMessage      = "invalid journal entry"
+	errInvalidTodoMessage         = "invalid todo component"
+	errInvalidCalendarMessage     = "invalid calendar"
+	errEventUIDsNotUniqueMessage  = "event UIDs must be unique"
+	errImageNotUrlOrBase64Message = "image must be a URL or base64 encoded data"
+	errInvalidMimeTypeMessage     = "invalid MIME type for image"
 )
 
 var (
@@ -45,6 +48,15 @@ var (
 
 	// ErrInvalidCalendar is returned when a calendar is not valid.
 	ErrInvalidCalendar = fmt.Errorf(errInvalidCalendarMessage)
+
+	// ErrEventUIDsNotUnique is returned when event UIDs are not unique.
+	ErrEventUIDsNotUnique = fmt.Errorf(errEventUIDsNotUniqueMessage)
+
+	// ErrImageNotUrlOrBase64 is returned when an image is neither a URL nor base64 encoded data.
+	ErrImageNotUrlOrBase64 = fmt.Errorf(errImageNotUrlOrBase64Message)
+
+	// ErrInvalidMimeType is returned when an image has an invalid MIME type.
+	ErrInvalidMimeType = fmt.Errorf(errInvalidMimeTypeMessage)
 )
 
 // ErrEndTimeBeforeStartTime is returned when the end time is before the start time.

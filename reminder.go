@@ -72,7 +72,7 @@ func (r *Reminder) generate(builder *strings.Builder) error {
 	}
 	builder.WriteString(beginAlarm + lineBreak)
 	builder.WriteString(action + string(r.Action) + lineBreak)
-	builder.WriteString(description + cleanDescription(r.Description) + lineBreak)
+	builder.WriteString(description + foldText(r.Description) + lineBreak)
 	builder.WriteString(trigger + formatDurationAsTrigger(r.Trigger) + lineBreak)
 	if r.Repeat != nil {
 		builder.WriteString(repeat + fmt.Sprintf("%d", *r.Repeat) + lineBreak)
