@@ -102,6 +102,7 @@ func TestCalendarWithMultipleOccurrences(t *testing.T) {
 		TimeZone:    ical.TimeZone(timezones.US_Mountain),
 		StartDate:   time.Now().Add(24 * time.Hour),
 		EndDate:     time.Now().Add(25 * time.Hour),
+		URL:         "https://example.com/single-event",
 	})
 	if err != nil {
 		t.Fatalf("Failed to add single event: %v", err)

@@ -6,6 +6,7 @@ const (
 	uid           = "UID:"
 	startDateTime = "DTSTART:"
 	endDateTime   = "DTEND:"
+	urlAttribute  = "URL:"
 	timestamp     = "DTSTAMP:"
 	organizer     = "ORGANIZER;CN="
 	mailto        = ":mailto:"

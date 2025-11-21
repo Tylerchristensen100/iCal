@@ -48,6 +48,9 @@ type Event struct {
 	// OPTIONAL: Image associated with the event
 	// Can be a URL or Base64 encoded string
 	Image *Image
+
+	// OPTIONAL: a URL associated with the event
+	URL string
 }
 
 // Generate creates the iCal formatted string for the event.
@@ -157,13 +160,19 @@ func (e *Event) uid() string {
 func (e *Event) buildEventDetails(builder *strings.Builder) error {
 	builder.WriteString(fmt.Sprintf("DTSTAMP:%s", fmt.Sprintf("%sZ", timeToICal(time.Now().UTC()))) + lineBreak)
 	builder.WriteString("SUMMARY:" + e.Title + lineBreak)
-	builder.WriteString("LOCATION:" + e.Location + lineBreak)
+
+	if e.Location != "" {
+		builder.WriteString("LOCATION:" + e.Location + lineBreak)
+	}
 
 	if e.Organizer != nil {
 		err := e.Organizer.generateOrganizer(builder)
 		if err != nil {
 			return err
 		}
+	}
+	if e.URL != "" {
+		builder.WriteString(urlAttribute + e.URL + lineBreak)
 	}
 	if e.Image != nil {
 		err := e.Image.generate(builder)

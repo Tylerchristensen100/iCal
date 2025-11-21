@@ -319,5 +319,6 @@ func mockEvent() Event {
 			},
 		},
 		Attendees: []Participant{{Name: "Test User", Email: "test@example.com"}},
+		URL:       "https://example.com/event",
 	}
 }
