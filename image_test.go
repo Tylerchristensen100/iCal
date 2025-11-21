@@ -90,6 +90,23 @@ func TestImageGenerate(t *testing.T) {
 	}
 }
 
+func TestImageDisplayType(t *testing.T) {
+	img := mockImage()
+	img.Display = DisplayFull
+	var builder strings.Builder
+	err := img.generate(&builder)
+	if err != nil {
+		t.Errorf("image.generate() with DisplayFull returned error: %v", err)
+	}
+
+	expected := "IMAGE;VALUE=URI;DISPLAY=FULL;FMTTYPE=image/svg+xml:https://pkg.go.dev/static/shared/logo/go-blue.svg\r\n"
+	generated := builder.String()
+	if generated != expected {
+		t.Errorf("image.generate() with DisplayFull = %s; want %s", generated, expected)
+	}
+
+}
+
 func TestImageValid(t *testing.T) {
 	var tests = []struct {
 		img       *Image

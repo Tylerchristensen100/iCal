@@ -14,12 +14,18 @@ type Image struct {
 	MIMEType string
 	// BASE64 encoded string
 	Value string
+	// Optional: Defaults to DisplayBadge
+	Display DisplayType
 }
 
 func (img *Image) generate(builder *strings.Builder) error {
 	err := img.valid()
 	if err != nil {
 		return err
+	}
+
+	if img.Display == "" {
+		img.Display = DisplayBadge
 	}
 
 	if img.URL != "" {
@@ -31,14 +37,14 @@ func (img *Image) generate(builder *strings.Builder) error {
 			}
 		}
 
-		builder.WriteString(fmt.Sprintf("IMAGE;VALUE=URI;DISPLAY=BADGE;FMTTYPE=%s:%s", img.MIMEType, img.URL) + lineBreak)
+		builder.WriteString(fmt.Sprintf("IMAGE;VALUE=URI;DISPLAY=%s;FMTTYPE=%s:%s", img.Display, img.MIMEType, img.URL) + lineBreak)
 	} else if img.Value != "" {
 		if img.MIMEType == "" {
 			img.MIMEType = "image/png" //Fallback
 		}
 
 		base64 := foldText(img.Value)
-		builder.WriteString(fmt.Sprintf("IMAGE;FMTTYPE=%s;ENCODING=BASE64;VALUE=BINARY:%s", img.MIMEType, base64) + lineBreak)
+		builder.WriteString(fmt.Sprintf("IMAGE;FMTTYPE=%s;DISPLAY=%s;ENCODING=BASE64;VALUE=BINARY:%s", img.MIMEType, img.Display, base64) + lineBreak)
 	} else {
 		return ErrImageNotUrlOrBase64
 	}
@@ -109,3 +115,11 @@ func ImageFromFile(filePath string) (*Image, error) {
 		Value:    string(encoded),
 	}, nil
 }
+
+type DisplayType string
+
+const (
+	DisplayBadge     DisplayType = "BADGE"
+	DisplayThumbnail DisplayType = "THUMBNAIL"
+	DisplayFull      DisplayType = "FULL"
+)
